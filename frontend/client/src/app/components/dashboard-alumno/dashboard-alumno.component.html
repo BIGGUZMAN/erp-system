@@ -1,0 +1,136 @@
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h2>ITGAM ERP</h2>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button (click)="cambiarSeccion('inicio')" [class.active]="seccionActiva === 'inicio'">
+                <span class="material-symbols-outlined">grid_view</span> Inicio
+            </button>
+            <button (click)="cambiarSeccion('ingles')" [class.active]="seccionActiva === 'ingles'">
+                <span class="material-symbols-outlined">language</span> Inglés
+            </button>
+            <button (click)="cambiarSeccion('servicio')" [class.active]="seccionActiva === 'servicio'">
+                <span class="material-symbols-outlined">volunteer_activism</span> Servicio Social
+            </button>
+            <button (click)="cambiarSeccion('residencias')" [class.active]="seccionActiva === 'residencias'">
+                <span class="material-symbols-outlined">domain</span> Residencias
+            </button>
+
+            <button class="btn-logout" (click)="cerrarSesion()">
+                <span class="material-symbols-outlined">logout</span> Cerrar Sesión
+            </button>
+        </nav>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-navbar">
+            <h3>ITGAM Académico</h3>
+            <div class="user-header-info" *ngIf="usuario">
+                <span>{{ usuario.nombre_completo }}</span>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="dashboard-grid" *ngIf="seccionActiva === 'inicio'">
+
+                <div class="top-row">
+                    <div class="welcome-card">
+                        <span class="badge-welcome">BIENVENIDO DE NUEVO</span>
+                        <h1 class="student-name">{{ usuario?.nombre_completo || 'Cargando...' }}</h1>
+                        <p class="student-career">
+                            {{ usuario?.carrera?.nombre || 'Carrera Universitaria' }}
+                        </p>
+                        <div class="student-info-footer">
+                            <div class="info-block">
+                                <span class="info-label">NÚMERO DE CONTROL</span>
+                                <span class="info-value">{{ usuario?.numero_control }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-column">
+                        <div class="stat-card">
+                            <div class="stat-icon"><span class="material-symbols-outlined">star</span></div>
+                            <div class="stat-data">
+                                <span class="stat-label">Promedio General</span>
+                                <span class="stat-value">9.2</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><span class="material-symbols-outlined">auto_awesome_motion</span>
+                            </div>
+                            <div class="stat-data">
+                                <span class="stat-label">Créditos Totales</span>
+                                <span class="stat-value">184 / 260</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-row">
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon"><span class="material-symbols-outlined">language</span></div>
+                            <span class="module-tag">MÓDULO ACADÉMICO</span>
+                        </div>
+                        <div class="module-body">
+                            <h4>Inglés</h4>
+                            <p>Certificación de idioma extranjero</p>
+                        </div>
+                        <div class="module-footer status-flex">
+                            <div>
+                                <span class="footer-label">NIVEL ACTUAL</span>
+                                <span class="footer-value">Nivel {{ resumenIngles.nivel }}</span>
+                            </div>
+                            <div>
+                                <span class="footer-label">AVANCE</span>
+                                <span class="footer-value">{{ resumenIngles.avance }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon"><span class="material-symbols-outlined">volunteer_activism</span>
+                            </div>
+                            <span class="module-tag">TRÁMITE VIGENTE</span>
+                        </div>
+                        <div class="module-body">
+                            <h4>Servicio Social</h4>
+                            <p>Vinculación con la comunidad</p>
+                        </div>
+                        <div class="module-footer">
+                            <button class="btn-action btn-primary" (click)="cambiarSeccion('servicio')">
+                                <span class="status-dot green"></span> En proceso
+                                <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="module-card">
+                        <div class="module-header">
+                            <div class="module-icon"><span class="material-symbols-outlined">domain</span></div>
+                            <span class="module-tag">PRÓXIMA ETAPA</span>
+                        </div>
+                        <div class="module-body">
+                            <h4>Residencias</h4>
+                            <p>Prácticas profesionales finales</p>
+                        </div>
+                        <div class="module-footer">
+                            <button class="btn-action btn-disabled" disabled>
+                                Pendiente <span class="req-text">REQ. 80% CRÉDITOS</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <app-seccion-ingles [hidden]="seccionActiva !== 'ingles'"></app-seccion-ingles>
+            <app-seccion-servicio [hidden]="seccionActiva !== 'servicio'"></app-seccion-servicio>
+            <app-seccion-residencias [hidden]="seccionActiva !== 'residencias'"></app-seccion-residencias>
+
+        </div>
+    </main>
+</div>

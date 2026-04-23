@@ -1,0 +1,91 @@
+<main class="main-container">
+    <section class="branding-section">
+        <div class="logo-area">
+            <div class="logo-box">
+                <img src="logo1.jpg" alt="Logo ITGAM" class="logo-img">
+            </div>
+            <h1 class="logo-text">ITGAM ERP</h1>
+        </div>
+
+        <div class="welcome-content">
+            <h2 class="welcome-title">Bienvenido a la Excelencia Académica.</h2>
+            <p class="welcome-subtitle">
+                Accede a tu portal institucional para gestionar tu trayectoria educativa y conectar con la comunidad
+                ITGAM.
+            </p>
+            <div class="badge-container">
+                <div class="line"></div>
+                <span class="badge-text">Portal de Activación</span>
+            </div>
+        </div>
+
+        <div class="footer-branding">
+            <p>Instituto Tecnológico de Gustavo A. Madero</p>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-card">
+            <header>
+                <h3>Activa tu Cuenta</h3>
+                <p>Completa la información para habilitar tu acceso al sistema.</p>
+            </header>
+
+            <form (ngSubmit)="onSubmit()" #activationForm="ngForm">
+                <div class="input-group">
+                    <label>Número de Control</label>
+                    <input type="text" name="numero_control" [(ngModel)]="userData.numero_control"
+                        (ngModelChange)="verificarTipoUsuario()" placeholder="Ej. 221130028 o C221130028" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" name="nombre_completo" [(ngModel)]="userData.nombre_completo"
+                        placeholder="Apellido Paterno Apellido Materno Nombre(s)" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Correo Institucional</label>
+                    <input type="email" name="correo" [(ngModel)]="userData.correo"
+                        placeholder="usuario@gamadero.tecnm.mx" required>
+                </div>
+
+                <div class="password-grid">
+                    <div class="input-group">
+                        <label>Nueva Contraseña</label>
+                        <input type="password" name="password" [(ngModel)]="userData.password" placeholder="••••••••"
+                            required>
+                    </div>
+                    <div class="input-group">
+                        <label>Confirmar Contraseña</label>
+                        <input type="password" name="password_confirmation" [(ngModel)]="userData.password_confirmation"
+                            placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <span class="material-symbols-outlined">info</span>
+                    <p>Mínimo 8 caracteres, una mayúscula y un número.</p>
+                </div>
+
+                <div class="input-group" *ngIf="mostrarCarreras">
+                    <label>Selecciona tu Carrera</label>
+                    <select name="carrera_id" [(ngModel)]="userData.carrera_id" class="custom-select" required>
+                        <option [ngValue]="null" disabled selected>-- Elige una carrera --</option>
+                        <option *ngFor="let carrera of carreras" [value]="carrera.id_carrera">
+                            {{ carrera.nombre }}
+                        </option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    Activar Acceso
+                </button>
+            </form>
+
+            <div class="login-link">
+                <a routerLink="/login">¿Tu cuenta ya está activa? Iniciar Sesión</a>
+            </div>
+        </div>
+    </section>
+</main>

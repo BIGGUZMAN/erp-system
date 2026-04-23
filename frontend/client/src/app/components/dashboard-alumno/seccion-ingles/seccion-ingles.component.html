@@ -1,0 +1,76 @@
+<div class="ingles-container">
+    <header class="progreso-header">
+        <div class="header-info">
+            <span class="badge">PROGRESO GLOBAL</span>
+            <h1>Consolidando el Dominio</h1>
+            <p>Has completado el {{ progresoGlobal }}% de los niveles requeridos para tu titulación.</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-number">{{ nivelesAprobados | number:'2.0' }}</span>
+                <span class="stat-label">NIVELES APROBADOS</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number">{{ nivelActual | number:'2.0' }}</span>
+                <span class="stat-label">NIVEL ACTUAL</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="card-porcentaje">
+        <div class="circle-progress">
+            <span class="percent-text">{{ progresoGlobal }}%</span>
+            <span class="sub-text">COMPLETADO</span>
+        </div>
+        <div class="card-text">
+            <h3>Objetivo para terminar</h3>
+            <p>{{ nivelesAprobados }} de 10 niveles acreditados con éxito.</p>
+        </div>
+    </section>
+
+    <section class="mapa-curricular">
+        <h2>Mapa Curricular</h2>
+        <p class="subtitle">Detalle de acreditaciones por nivel</p>
+
+        <div *ngIf="cargando && historialIngles.length === 0" class="loading-state">
+            <p>Cargando información académica...</p>
+        </div>
+
+        <div class="niveles-grid" *ngIf="historialIngles.length > 0">
+            <div *ngFor="let item of historialIngles" class="nivel-card"
+                [ngClass]="{'aprobado': item.estado_academico === 'Aprobado', 'cursando': item.estado_academico === 'Cursando'}">
+
+                <div class="card-main-content">
+                    <div class="nivel-header">
+                        <span class="nivel-number">{{ item.nivel_id | number:'2.0' }}</span>
+                        <div class="nivel-status-icon">
+                            <span *ngIf="item.estado_academico === 'Aprobado'" class="check-icon">✔</span>
+                            <span *ngIf="item.estado_academico === 'Cursando'" class="actual-badge">ACTUAL</span>
+                        </div>
+                    </div>
+
+                    <div class="nivel-info">
+                        <h3>{{ item.estado_academico }}</h3>
+                        <p class="calif" *ngIf="item.calificacion_final">
+                            Calificación: {{ item.calificacion_final }}/100
+                        </p>
+                        <p class="modulo-text text-muted">
+                            Módulo: {{ item.nivel?.nombre || 'Inglés ' + item.nivel_id }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card-footer" *ngIf="item.estado_academico === 'Aprobado'">
+                    <button (click)="descargarBoleta(item.id)" class="btn-boleta">
+                        <span class="icon-file">📄</span> Boleta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="!cargando && historialIngles.length === 0" class="empty-state">
+            <p>Aún no tienes historial de niveles registrados.</p>
+        </div>
+    </section>
+</div>

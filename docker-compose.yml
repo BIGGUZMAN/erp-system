@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+
+  mysql:
+    image: mysql:8
+    container_name: erp_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: erp_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  laravel:
+    build: ./backend
+    container_name: erp_laravel
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    ports:
+      - "8000:8000"
+    command: php -S 0.0.0.0:8000 -t public
+    depends_on:
+      - mysql
+
+  angular:
+    image: node:20
+    container_name: erp_angular
+    working_dir: /app/client
+    volumes:
+      - ./frontend/client:/app/client
+    ports:
+      - "4200:4200"
+    command: bash -c "npm install && npx ng serve --host 0.0.0.0 --port 4200"
+
+volumes:
+  mysql_data:

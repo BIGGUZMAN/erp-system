@@ -1,0 +1,146 @@
+<div class="detalle-container">
+    <div class="header-section">
+        <div class="nav-top">
+            <button class="btn-back" (click)="regresar()">
+                <i class="fas fa-arrow-left"></i>← Volver al Dashboard
+            </button>
+            <div class="breadcrumb">
+                CONTROL ESCOLAR > <span class="current-path">{{ nombreCursoActual | uppercase }}</span>
+            </div>
+        </div>
+
+        <div class="header-main">
+            <h1 [class.skeleton-text]="cargando">{{ cargando ? 'Cargando nivel...' : nombreCursoActual + ' - Lista de
+                Alumnos' }}</h1>
+            <button class="btn-reporte" [disabled]="cargando || alumnosFiltrados.length === 0"
+                (click)="generarReporte()">
+                <i [class]="cargando ? 'fas fa-spinner fa-spin' : 'fas fa-file-alt'"></i>
+                {{ cargando ? ' Generando...' : ' Reporte por Nivel' }}
+            </button>
+        </div>
+        <p class="subtitle">Gestión académica y administrativa del grupo. Ciclo Escolar 2023-2024.</p>
+    </div>
+
+    <div class="filters-row">
+        <div class="tabs-container">
+            <button *ngFor="let mod of modalidades" (click)="filtrarPorModalidad(mod)"
+                [class.active]="modalidadActual === mod">
+                {{ mod }}
+            </button>
+        </div>
+
+        <div class="group-filter-container">
+            <label for="grupoSelect"><strong>Grupo:</strong></label>
+            <select id="grupoSelect" [(ngModel)]="grupoActual" (change)="cargarAlumnos()" class="select-grupo">
+                <option *ngFor="let g of gruposDisponibles" [value]="g">Grupo {{ g }}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="pendientes-container" *ngIf="alumnosPendientes.length > 0 && !cargando">
+        <div class="stat-box warning-border">
+            <span class="stat-label text-warning">PAGOS PENDIENTES - {{ modalidadActual | uppercase }} - GRUPO {{
+                grupoActual }}</span>
+            <div class="pendientes-list">
+                <div class="pendiente-item" *ngFor="let p of alumnosPendientes">
+                    <div class="p-info">
+                        <span class="p-name">{{ p.usuario?.nombre_completo }}</span>
+                        <span class="p-control">{{ p.usuario?.numero_control }}</span>
+                    </div>
+                    <label [for]="'file-' + p.id" class="btn-subir-inline">
+                        <i class="fas fa-upload"></i> Subir Voucher
+                        <input type="file" [id]="'file-' + p.id" (change)="subirVoucher($event, p)" hidden>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>NÚMERO DE CONTROL</th>
+                    <th>NOMBRE COMPLETO</th>
+                    <th>CARRERA</th>
+                    <th>PAGO</th>
+                    <th>CALIFICACIÓN FINAL</th>
+                    <th>ESTADO</th>
+                    <th>SIGUIENTE NIVEL</th>
+                    <th>BOLETA</th>
+                </tr>
+            </thead>
+
+            <tbody *ngIf="cargando">
+                <tr *ngFor="let item of [1,2,3,4,5]" class="skeleton-row">
+                    <td colspan="8">
+                        <div class="skeleton-bar"></div>
+                    </td>
+                </tr>
+            </tbody>
+
+            <tbody *ngIf="!cargando">
+                <tr *ngFor="let alumno of alumnosFiltrados">
+                    <td class="bold">{{ alumno.usuario?.numero_control }}</td>
+                    <td>{{ alumno.usuario?.nombre_completo }}</td>
+                    <td class="text-muted">{{ alumno.usuario?.carrera?.nombre || 'General' }}</td>
+                    <td>
+                        <span [class]="'badge-pago ' + (alumno.estado_pago?.toLowerCase() || 'pendiente')">
+                            {{ alumno.estado_pago || 'Pendiente' }}
+                        </span>
+                    </td>
+                    <td>
+                        <input type="number" [(ngModel)]="alumno.calificacion_final" min="0" max="100"
+                            class="input-calif">
+                    </td>
+                    <td>
+                        <span [ngClass]="{
+                            'text-success': alumno.calificacion_final >= 70,
+                            'text-danger': alumno.calificacion_final < 70 && alumno.calificacion_final !== null,
+                            'text-muted': alumno.calificacion_final === null
+                        }">
+                            ● {{ alumno.calificacion_final >= 70 ? 'Approved' : (alumno.calificacion_final === null ?
+                            'Incomplete' : 'Failed') }}
+                        </span>
+                    </td>
+                    <td>{{ alumno.calificacion_final >= 70 ? getNombreCurso(nivelId + 1) : '--' }}</td>
+                    <td>
+                        <button class="btn-reporte" style="padding: 5px 10px; font-size: 0.85rem;"
+                            [disabled]="alumno.calificacion_final === null" (click)="imprimirBoleta(alumno.id)">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </td>
+                </tr>
+
+                <tr *ngIf="alumnosFiltrados.length === 0">
+                    <td colspan="8" class="empty-state">No hay alumnos inscritos en la modalidad {{ modalidadActual }} -
+                        Grupo {{ grupoActual }}.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer-actions">
+        <div class="stats-row" *ngIf="!cargando">
+            <div class="stat-box">
+                <span class="stat-label">TOTAL ALUMNOS ({{ modalidadActual }} - {{ grupoActual }})</span>
+                <div class="stat-value">{{ alumnosFiltrados.length }} <span class="stat-unit">Inscritos</span></div>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">PROMEDIO GRUPAL</span>
+                <div class="stat-value">{{ stats.promedio }} <span class="stat-icon">📈</span></div>
+            </div>
+        </div>
+
+        <div class="floating-buttons">
+            <button class="btn-vaciar" (click)="vaciarCurso()" [disabled]="cargando || !calificacionesGuardadas">
+                <i class="fas fa-trash"></i> Vaciar Ciclo
+            </button>
+            <button class="btn-save-fab" (click)="guardarCalificaciones()"
+                [disabled]="cargando || alumnosFiltrados.length === 0">
+                <i class="fas fa-save"></i>💾
+            </button>
+        </div>
+    </div>
+</div>

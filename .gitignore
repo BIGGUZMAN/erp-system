@@ -1,0 +1,23 @@
+# Entornos
+.env
+
+# Docker
+mysql_data/
+docker/mysql_data/
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Node global (por si acaso)
+node_modules/
+
+# Builds
+dist/
+
+# IDE
+.vscode/
+.idea/

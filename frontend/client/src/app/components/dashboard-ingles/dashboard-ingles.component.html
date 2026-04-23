@@ -1,0 +1,115 @@
+<div class="dashboard-container">
+
+    <h2>Departamento de Inglés</h2>
+    <p class="subtitle">
+        Gestión centralizada de niveles académicos y métricas de rendimiento.
+    </p>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Inscritos</h3>
+            <p>{{ totalEnrollment }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Grupos Activos</h3>
+            <p>{{ gruposActivos }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Tasa de Aprobación</h3>
+            <p>{{ tasaAprobacion }}%</p>
+        </div>
+    </div>
+
+    <!-- LOADING -->
+    <div *ngIf="cargando" class="loading">
+        Cargando datos...
+    </div>
+
+    <!-- CONTENIDO -->
+    <div *ngIf="!cargando">
+
+        <!-- BASICOS -->
+        <div class="niveles-section">
+            <h3>Niveles Básico (1 - 5)</h3>
+
+            <div class="niveles-grid">
+                <div *ngFor="let nivel of nivelesBasicos" class="nivel-card">
+
+                    <!-- ESTADO -->
+                    <div class="status" [ngClass]="nivel.inscripciones_count > 0 ? 'activo' : 'vacio'">
+                        {{ nivel.inscripciones_count > 0 ? 'ACTIVO' : 'VACÍO' }}
+                    </div>
+
+                    <!-- TITULO -->
+                    <h4>{{ nivel.nombre }}</h4>
+
+                    <!-- INSCRITOS -->
+                    <p class="alumnos">
+                        {{ nivel.inscripciones_count }} / {{ nivel.cupo_maximo }} alumnos
+                    </p>
+
+                    <!-- BARRA -->
+                    <div class="progress">
+                        <div class="progress-bar"
+                            [style.width.%]="(nivel.inscripciones_count / nivel.cupo_maximo) * 100">
+                        </div>
+                    </div>
+
+                    <!-- BOTON -->
+                    <button (click)="verDetalles(nivel.id)">
+                        Ver Detalles
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- INTERMEDIOS -->
+        <div class="niveles-section">
+            <h3>Niveles Intermedio (1 - 5)</h3>
+
+            <div class="niveles-grid">
+                <div *ngFor="let nivel of nivelesIntermedios" class="nivel-card">
+
+                    <!-- ESTADO -->
+                    <div class="status" [ngClass]="nivel.inscripciones_count > 0 ? 'activo' : 'vacio'">
+                        {{ nivel.inscripciones_count > 0 ? 'ACTIVO' : 'VACÍO' }}
+                    </div>
+
+                    <!-- TITULO -->
+                    <h4>{{ nivel.nombre }}</h4>
+
+                    <!-- INSCRITOS -->
+                    <p class="alumnos">
+                        {{ nivel.inscripciones_count }} / {{ nivel.cupo_maximo }} alumnos
+                    </p>
+
+                    <!-- BARRA -->
+                    <div class="progress">
+                        <div class="progress-bar"
+                            [style.width.%]="(nivel.inscripciones_count / nivel.cupo_maximo) * 100">
+                        </div>
+                    </div>
+
+                    <!-- BOTON -->
+                    <button (click)="verDetalles(nivel.id)">
+                        Ver Detalles
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ACCIONES -->
+    <div class="actions">
+        <button class="btn-inscribir" (click)="irAInscripcion()">
+            + Inscribir Alumno
+        </button>
+    </div>
+
+</div>

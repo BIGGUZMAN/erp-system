@@ -1,0 +1,311 @@
+/* Contenedor Principal */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: #f3f4f6;
+    font-family: 'Inter', sans-serif;
+}
+
+.login-card-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Tarjeta */
+.login-card {
+    background: #ffffff;
+    padding: 3rem;
+    border-radius: 1.25rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 25px 50px -12px rgba(0, 30, 64, 0.1);
+}
+
+/* Cabecera Institucional */
+.institutional-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.logo-box {
+    background-color: #ffffff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    /* Ajusta según el tamaño de tu cabecera */
+    height: 64px;
+    padding: 5px;
+    /* Espacio interno para que el logo no toque los bordes */
+    overflow: hidden;
+}
+
+.logo-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    /* Esto evita que la imagen se estire feo */
+}
+
+.logo-container {
+    background-color: #003366;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+/* Estilo para los iconos de Material Symbols */
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined' !important;
+    /* Importante para forzar la fuente */
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'liga';
+}
+
+.icon-white {
+    color: white;
+    font-size: 2.5rem !important;
+}
+
+.logo-title {
+    color: #003366;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    margin: 0;
+}
+
+.decorator-line {
+    width: 3rem;
+    height: 4px;
+    background-color: rgba(0, 51, 102, 0.2);
+    border-radius: 99px;
+    margin-top: 0.5rem;
+}
+
+/* Títulos */
+.title-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.form-title {
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.form-subtitle {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Formulario e Inputs */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.input-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #4b5563;
+    margin-left: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Iconos de entrada */
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    color: #9ca3af;
+    font-size: 20px !important;
+}
+
+/* Input: CRÍTICO - El padding-left es 3.5rem para separarlo del icono */
+.form-control {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3.5rem;
+    /* Incrementado para separarlo del icono */
+    background-color: #f9fafb;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    background-color: #ffffff;
+    outline: none;
+    border-bottom-color: #003366;
+}
+
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.forgot-link {
+    font-size: 0.7rem;
+    color: #003366;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+/* Botón de ojito */
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+}
+
+.toggle-password:hover {
+    color: #6b7280;
+}
+
+/* Botón de Ingresar */
+.btn-primary {
+    width: 100%;
+    padding: 1rem;
+    background-color: #003366;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #002b55;
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Footer */
+.footer-card {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #f3f4f6;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.activate-link {
+    color: #003366;
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 0.25rem;
+}
+
+.activate-link:hover {
+    text-decoration: underline;
+}
+
+.institutional-footer {
+    margin-top: 3rem;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* --- Estilos del Botón Volver --- */
+.btn-back {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.btn-back .material-symbols-outlined {
+    font-size: 18px !important;
+}
+
+.btn-back:hover {
+    color: #003366;
+    background-color: #f3f4f6;
+}
+
+.btn-back:active {
+    transform: translateX(-3px);
+}
+
+/* IMPORTANTE: Asegúrate de que .login-card tenga posición relativa */
+.login-card {
+    position: relative;
+    /* Necesario para que el botón se ubique respecto a la card */
+    background: #ffffff;
+    padding: 3rem;
+    border-radius: 1.25rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 25px 50px -12px rgba(0, 30, 64, 0.1);
+}
+
+/* El resto de tu CSS se mantiene igual... */

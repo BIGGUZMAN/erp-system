@@ -1,0 +1,203 @@
+:host {
+    --primary: #001e40;
+    --primary-light: #003366;
+    --accent: #a7c8ff;
+    --surface: #f8f9fa;
+    --white: #ffffff;
+    display: block;
+}
+
+.main-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- SECCIÓN IZQUIERDA --- */
+.branding-section {
+    flex: 1;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-box {
+    background-color: #ffffff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    /* Ajusta según el tamaño de tu cabecera */
+    height: 64px;
+    padding: 5px;
+    /* Espacio interno para que el logo no toque los bordes */
+    overflow: hidden;
+}
+
+.logo-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    /* Esto evita que la imagen se estire feo */
+}
+
+.logo-text {
+    font-family: 'Manrope';
+    font-weight: 800;
+    font-size: 1.5rem;
+}
+
+.welcome-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+}
+
+.welcome-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.8;
+    font-weight: 300;
+    max-width: 450px;
+}
+
+/* --- SECCIÓN DERECHA --- */
+.form-section {
+    flex: 1;
+    background: #f3f4f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.form-card {
+    background: white;
+    padding: 3rem;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+header h3 {
+    color: var(--primary);
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: #edeeef;
+    border-radius: 6px;
+    font-size: 1rem;
+    border-bottom: 2px solid transparent;
+    transition: 0.3s;
+}
+
+input:focus {
+    outline: none;
+    background: white;
+    border-bottom-color: var(--primary);
+}
+
+.password-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.btn-submit:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+.info-box {
+    background: #d5e3ff;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+    }
+
+    .welcome-title {
+        font-size: 2.5rem;
+    }
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: #edeeef;
+    border-radius: 6px;
+    font-size: 1rem;
+    appearance: none;
+    margin-bottom: 1rem;
+}
+
+.custom-select {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: #edeeef;
+    border-radius: 6px;
+    font-size: 1rem;
+    margin-top: 5px;
+    color: #333;
+    outline: none;
+}
+
+.custom-select:focus {
+    box-shadow: 0 0 0 2px #001f3f;
+
+}

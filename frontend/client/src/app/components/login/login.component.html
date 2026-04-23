@@ -1,0 +1,72 @@
+<main class="login-page">
+    <div class="login-card-wrapper">
+        <div class="login-card">
+            <button class="btn-back" (click)="router.navigate(['/'])" title="Volver al inicio">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Volver</span>
+            </button>
+
+            <div class="institutional-header">
+                <div class="logo-box">
+                    <img src="logo1.jpg" alt="Logo ITGAM" class="logo-img">
+                </div>
+                <h1 class="logo-title">ITGAM ERP</h1>
+                <div class="decorator-line"></div>
+            </div>
+
+            <div class="title-section">
+                <h2 class="form-title">Inicio de Sesión</h2>
+                <p class="form-subtitle">Portal de Gestión Académica</p>
+            </div>
+
+            <form (ngSubmit)="onLogin()" #loginForm="ngForm" class="login-form">
+
+                <div class="input-field">
+                    <label class="input-label">Número de Control</label>
+                    <div class="input-wrapper">
+                        <span class="material-symbols-outlined input-icon">person</span>
+                        <input type="text" name="numero_control" [(ngModel)]="loginData.numero_control"
+                            class="form-control" placeholder="Ej. 221130028" required>
+                    </div>
+                </div>
+
+                <div class="input-field">
+                    <div class="label-row">
+                        <label class="input-label">Contraseña</label>
+                        <a routerLink="/cambiar-password" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="material-symbols-outlined input-icon">lock</span>
+                        <input [type]="showPassword ? 'text' : 'password'" name="password"
+                            [(ngModel)]="loginData.password" class="form-control" placeholder="••••••••" required>
+                        <button type="button" (click)="showPassword = !showPassword" class="toggle-password">
+                            <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility'
+                                }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="action-section">
+                    <button type="submit" class="btn-primary">
+                        <span>Entrar al Sistema</span>
+                        <span class="material-symbols-outlined">login</span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="footer-card">
+                <p>¿Aún no tienes cuenta?
+                    <a routerLink="/activar-cuenta" class="activate-link">Activar Cuenta</a>
+                </p>
+            </div>
+        </div>
+
+        <footer class="institutional-footer">
+            <div class="footer-links">
+                <a href="#">Soporte</a>
+                <a href="#">Privacidad</a>
+            </div>
+            <p>ITGAM ERP © 2026</p>
+        </footer>
+    </div>
+</main>

@@ -1,0 +1,101 @@
+<div class="form-container">
+    <div class="form-card">
+
+        <header>
+            <button type="button" class="btn-back" (click)="router.navigate(['/dashboard-ingles'])">
+                ← Volver
+            </button>
+            <h2>Nueva Inscripción</h2>
+        </header>
+
+        <form [formGroup]="inscripcionForm" (ngSubmit)="guardarInscripcion()">
+
+            <div class="grid-form">
+
+                <div class="form-group">
+                    <label>Nombre Completo *</label>
+                    <input type="text" formControlName="nombre_completo">
+                </div>
+
+                <div class="form-group">
+                    <label>Número de Control *</label>
+                    <input type="text" formControlName="numero_control" (blur)="buscarDatosAlumno()">
+                </div>
+
+                <div class="form-group">
+                    <label>Carrera *</label>
+                    <select formControlName="carrera_id">
+                        <option value="">Seleccione</option>
+                        <option *ngFor="let c of carreras" [value]="c.id_carrera">
+                            {{ c.nombre }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Nivel *</label>
+                    <select formControlName="nivel_id">
+                        <option value="">Seleccione</option>
+                        <option *ngFor="let n of niveles" [value]="n.id">
+                            {{ n.nombre }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Modalidad *</label>
+                    <select formControlName="modalidad">
+                        <option value="">Seleccione</option>
+                        <option value="Semanal">Semanal</option>
+                        <option value="Sabatino">Sabatino</option>
+                        <option value="En Línea">En Línea</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Grupo *</label>
+                    <select formControlName="grupo">
+                        <option *ngFor="let g of gruposDisponibles" [value]="g">
+                            Grupo {{ g }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Ciclo Escolar *</label>
+                    <input type="text" formControlName="ciclo_escolar">
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha Inicio</label>
+                    <input type="date" formControlName="fecha_inicio">
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha Fin</label>
+                    <input type="date" formControlName="fecha_fin">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Comprobante (Opcional)</label>
+                    <input type="file" (change)="onFileSelected($event)">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>
+                        <input type="checkbox" formControlName="pago_pendiente">
+                        Marcar como pendiente de pago
+                    </label>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-save">
+                    Inscribir Alumno
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>

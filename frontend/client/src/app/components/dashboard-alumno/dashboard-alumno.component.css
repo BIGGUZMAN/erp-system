@@ -1,0 +1,343 @@
+/* Layout Principal */
+.dashboard-layout {
+    display: flex;
+    height: 100vh;
+    background-color: #f4f6f9;
+    font-family: 'Inter', system-ui, sans-serif;
+    /* Ideal para ERPs */
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-brand {
+    padding: 24px;
+    color: #042b5c;
+    /* Azul oscuro ITGAM */
+}
+
+.sidebar-brand h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px;
+    gap: 4px;
+}
+
+.sidebar-nav button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    color: #4b5563;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.sidebar-nav button:hover {
+    background-color: #f3f4f6;
+}
+
+.sidebar-nav button.active {
+    background-color: #e0e7ff;
+    /* Azul muy claro */
+    color: #042b5c;
+    font-weight: 600;
+    border-left: 4px solid #042b5c;
+}
+
+/* Main Area */
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.top-navbar {
+    background-color: #ffffff;
+    padding: 20px 32px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.top-navbar h3 {
+    margin: 0;
+    color: #042b5c;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.content-area {
+    padding: 32px;
+}
+
+/* Grid de Inicio */
+.dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.top-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+/* Welcome Card (Azul oscuro) */
+.welcome-card {
+    background-color: #041d42;
+    border-radius: 16px;
+    padding: 32px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.badge-welcome {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #60a5fa;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    width: max-content;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+}
+
+.student-name {
+    color: #ffffff;
+    /* Blanco para que resalte */
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.student-career {
+    color: #cbd5e1;
+    /* Un gris muy claro/azulado */
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.student-info-footer {
+    display: flex;
+    gap: 40px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+
+.info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.badge-status {
+    background-color: white;
+    color: #041d42;
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+
+/* Stats Column */
+.stats-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.stat-card {
+    background-color: white;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    flex: 1;
+}
+
+.stat-icon {
+    background-color: #f3f4f6;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #042b5c;
+}
+
+.stat-data {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Bottom Row (Módulos) */
+.bottom-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.module-card {
+    background-color: white;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.module-icon {
+    border: 1px solid #e5e7eb;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.module-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #6b7280;
+    letter-spacing: 0.5px;
+}
+
+.module-body h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.25rem;
+    color: #111827;
+}
+
+.module-body p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.module-footer {
+    margin-top: 32px;
+    margin-top: auto;
+    padding-top: 20px;
+}
+
+.status-flex {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer-label {
+    display: block;
+    font-size: 0.7rem;
+    color: #9ca3af;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.footer-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Botones de acción en tarjetas */
+.btn-action {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #042b5c;
+    color: white;
+    justify-content: space-between;
+    padding: 14px 20px;
+}
+
+.btn-disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    border: 1px dashed #d1d5db;
+    cursor: not-allowed;
+    justify-content: space-between;
+}
+
+.status-dot.green {
+    height: 8px;
+    width: 8px;
+    background-color: #4ade80;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.req-text {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #6b7280;
+}
