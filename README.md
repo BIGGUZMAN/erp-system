@@ -16,7 +16,7 @@ Sistema ERP desarrollado con:
 
 ---
 
-## ⚙️ Instalación (Muy fácil)
+## ⚙️ Instalación 
 
 ```bash
 git clone https://github.com/BIGGUZMAN/erp-system.git
