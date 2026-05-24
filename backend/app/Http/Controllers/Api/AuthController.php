@@ -191,4 +191,25 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Tu contraseña ha sido restablecida con éxito.']);
     }
+
+    public function registrarAlumnoAdmin(Request $request) {
+    $request->validate([
+        'numero_control' => 'required|unique:usuarios,numero_control',
+        'correo' => 'required|email|unique:usuarios,correo|ends_with:@gamadero.tecnm.mx',
+        'nombre_completo' => 'required',
+        'carrera_id' => 'required|exists:carreras,id_carrera'
+    ]);
+
+    Usuario::create([
+        'numero_control' => $request->numero_control,
+        'correo' => $request->correo,
+        'nombre_completo' => $request->nombre_completo,
+        'carrera_id' => $request->carrera_id,
+        'rol' => 'alumno',
+        'is_active' => 1,
+        'password_hash' => null // Pendiente de activación por el alumno
+    ]);
+
+    return response()->json(['message' => 'Alumno registrado con éxito']);
+}
 }

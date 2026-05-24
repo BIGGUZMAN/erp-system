@@ -22,7 +22,8 @@ services:
       - ./backend:/var/www
     ports:
       - "8000:8000"
-    command: php -S 0.0.0.0:8000 -t public
+    # USA ESTE COMANDO, es mucho más estable para Docker
+    command: php artisan serve --host=0.0.0.0 --port=8000
     depends_on:
       - mysql
 

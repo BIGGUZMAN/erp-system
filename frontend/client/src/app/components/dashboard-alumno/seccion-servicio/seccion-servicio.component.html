@@ -1,1 +1,230 @@
-<p>seccion-servicio works!</p>
+<div class="container-fluid py-4 bg-light">
+    <input type="file" #fileInputDoc style="display: none" (change)="onFileSelected($event, selectedDocNombre)"
+        accept=".pdf">
+    <input type="file" #fileInputRep style="display: none" (change)="subirReporte($event, selectedReporteId)"
+        accept=".pdf">
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold">Documentos Iniciales</h4>
+                <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary px-3">
+                    {{ calcularProgreso() }}/6 COMPLETADO
+                </span>
+            </div>
+
+            <div *ngFor="let doc of documentos">
+                <div *ngIf="!doc.nombre?.toLowerCase()?.includes('ensayo')"
+                    class="card mb-3 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 bg-light p-3 rounded-3 me-3">
+                                <i class="bi bi-file-earmark-text fs-3 text-secondary"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 fw-bold text-dark">{{ doc.nombre || doc.tipo_documento }}</h6>
+                                <small [ngClass]="{
+                                    'text-success': doc.statusValidacion === 'APROBADO',
+                                    'text-danger': doc.statusValidacion === 'RECHAZADO',
+                                    'text-primary': doc.statusValidacion === 'EN_REVISION',
+                                    'text-muted': doc.statusValidacion === 'INACTIVO'
+                                }" class="fw-bold">
+                                    {{ doc.statusValidacion }}
+                                </small>
+                            </div>
+                            <div class="text-end d-flex gap-2">
+                                <div class="url-actions" *ngIf="doc.url_final"
+                                    class="d-flex align-items-center justify-content-end gap-1">
+                                    <button class="btn btn-sm btn-outline-dark rounded-circle"
+                                        (click)="revisarEntrega(doc)" title="Ver archivo actual">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button *ngIf="doc.statusValidacion !== 'APROBADO'"
+                                        class="btn btn-sm btn-outline-secondary rounded-circle"
+                                        (click)="habilitarEdicionDocumento(doc)" title="Actualizar este documento">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+                                <button *ngIf="!doc.url_final" class="btn btn-sm btn-primary rounded-pill px-3"
+                                    (click)="triggerDocUpload(doc.nombre || doc.tipo_documento, fileInputDoc)">
+                                    {{ doc.statusValidacion === 'RECHAZADO' ? 'Corregir' : 'Subir' }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div *ngIf="doc.statusValidacion === 'RECHAZADO' && doc.observaciones"
+                            class="mt-2 p-2 bg-danger-subtle border-start border-danger border-3 rounded-1">
+                            <small class="text-danger fw-bold d-block">Motivo del rechazo:</small>
+                            <small class="text-dark">{{ doc.observaciones }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-dark text-white rounded-4 border-0 shadow mt-4">
+                <div class="card-body p-4 text-center">
+                    <h6 class="fw-bold mb-1">¿Necesitas corregir algo?</h6>
+                    <p class="small mb-0 opacity-75">Usa el icono del lápiz para habilitar la carga individual de
+                        archivos.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold">Reportes Bimestrales</h4>
+                <div *ngIf="calcularProgreso() < 6" class="badge bg-danger rounded-pill px-3">
+                    <i class="bi bi-lock-fill"></i> Bloqueado: Completa tus documentos
+                </div>
+                <small *ngIf="calcularProgreso() === 6" class="text-muted">Ciclo activo</small>
+            </div>
+
+            <div class="row g-3">
+                <div *ngFor="let rep of reportes" class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 p-3" [ngClass]="{
+                            'opacity-75 bg-light': rep.statusValidacion === 'BLOQUEADO_VENCIDO',
+                            'border border-danger-subtle': rep.statusValidacion === 'RECHAZADO'
+                        }">
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="p-2 rounded-3"
+                                [ngClass]="rep.statusValidacion === 'BLOQUEADO_VENCIDO' ? 'bg-secondary-subtle' : 'bg-primary-subtle'">
+                                <i class="bi"
+                                    [ngClass]="rep.statusValidacion === 'BLOQUEADO_VENCIDO' ? 'bi-lock-fill text-secondary' : 'bi-file-earmark-check text-primary'"></i>
+                            </div>
+                            <span class="badge" [ngClass]="{
+                                    'bg-success': rep.statusValidacion === 'APROBADO',
+                                    'bg-info text-dark': rep.statusValidacion === 'EN_REVISION',
+                                    'bg-danger': rep.statusValidacion === 'RECHAZADO' || rep.statusValidacion === 'BLOQUEADO_VENCIDO',
+                                    'bg-primary': rep.statusValidacion === 'ACTIVO'
+                                }">
+                                {{ rep.statusValidacion }}
+                            </span>
+                        </div>
+
+                        <h6 class="fw-bold mb-1">Reporte {{ rep.numero_reporte }}</h6>
+
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Tiempo restante:</small>
+                            <span class="fw-bold" style="font-size: 0.9rem;"
+                                [ngClass]="rep.tiempoRestante.includes('VENCIDO') ? 'text-danger' : 'text-primary'">
+                                <i class="bi bi-clock-history me-1"></i> {{ rep.tiempoRestante }}
+                            </span>
+                        </div>
+
+                        <div *ngIf="rep.statusValidacion === 'RECHAZADO' && rep.observaciones"
+                            class="mb-3 p-2 bg-danger-subtle border-start border-danger border-3 rounded-1">
+                            <small class="text-danger fw-bold d-block">Observaciones:</small>
+                            <small class="text-dark" style="font-size: 0.85rem;">{{ rep.observaciones }}</small>
+                        </div>
+
+                        <div class="mt-auto d-grid gap-2">
+                            <button *ngIf="rep.url_final" class="btn btn-outline-dark btn-sm rounded-pill w-100"
+                                (click)="revisarEntrega(rep)">
+                                <i class="bi bi-eye me-1"></i> Ver mi entrega
+                            </button>
+
+                            <button
+                                *ngIf="calcularProgreso() === 6 && (rep.statusValidacion === 'ACTIVO' || rep.statusValidacion === 'RECHAZADO')"
+                                class="btn btn-primary btn-sm rounded-pill w-100"
+                                (click)="triggerReporteUpload(rep.id, 'Reporte', fileInputRep)">
+                                <i class="bi bi-upload me-1"></i>
+                                {{ rep.statusValidacion === 'RECHAZADO' ? 'Corregir y Subir' : 'Cargar Reporte' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mt-4 bg-primary-subtle border-start border-primary border-5">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white p-3 rounded-circle me-4 shadow-sm">
+                            <i class="bi bi-mortarboard fs-2 text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="fw-bold mb-1">Ensayo Final</h5>
+                            <p class="small text-muted mb-0">
+                                {{ (ensayoFinal && ensayoFinal.statusValidacion) ? 'Estado: ' +
+                                ensayoFinal.statusValidacion : 'Habilitado al aprobar todos los reportes.' }}
+                            </p>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button *ngIf="ensayoFinal?.url_final"
+                                class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                (click)="revisarEntrega(ensayoFinal)">
+                                <i class="bi bi-eye me-1"></i> Ver Entrega
+                            </button>
+
+                            <button class="btn btn-primary rounded-pill px-4 fw-bold" *ngIf="puedoSubirEnsayo()"
+                                (click)="triggerReporteUpload(0, 'Ensayo Final', fileInputRep)">
+                                <i class="bi bi-upload me-1"></i>
+                                {{ (ensayoFinal?.statusValidacion === 'RECHAZADO') ? 'Corregir y Subir' : 'Subir Ensayo'
+                                }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div *ngIf="ensayoFinal?.statusValidacion === 'RECHAZADO'"
+                        class="mt-3 p-3 bg-white border-start border-danger border-4 rounded-3 shadow-sm">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-chat-left-text-fill text-danger me-2"></i>
+                            <span class="text-danger fw-bold small">Comentario de la Administración:</span>
+                        </div>
+                        <p class="text-dark mb-0 small" style="font-weight: 500;">
+                            {{ ensayoFinal.observaciones || 'Revisar detalles con el administrador.' }}
+                        </p>
+                    </div>
+
+                    <div *ngIf="ensayoFinal?.statusValidacion === 'APROBADO'"
+                        class="mt-3 alert alert-success py-2 mb-0 small">
+                        <i class="bi bi-check-circle-fill me-2"></i> ¡Felicidades! Tu ensayo final ha sido aprobado.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mt-4 bg-success-subtle border-start border-success border-5">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white p-3 rounded-circle me-4 shadow-sm">
+                            <i class="bi bi-patch-check fs-2 text-success"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="fw-bold mb-1 text-success-emphasis">Constancia de Liberación</h5>
+                            <div *ngIf="constanciaLiberacion; else mensajeEspera">
+                                <div *ngIf="constanciaLiberacion.estado === 'PENDIENTE_GENERAR'"
+                                    class="text-warning fw-bold small">
+                                    <i class="bi bi-clock-fill"></i> Tu proceso ha sido validado, pero el administrador
+                                    aún no ha generado la constancia.
+                                </div>
+                                <div *ngIf="constanciaLiberacion.estado !== 'PENDIENTE_GENERAR'">
+                                    <p class="small text-success mb-2 fw-bold">¡Tu Constancia Oficial está lista!</p>
+                                    <button class="btn btn-success rounded-pill px-4 fw-bold shadow-sm"
+                                        (click)="imprimirMiConstancia()">
+                                        <i class="bi bi-printer me-2"></i> Imprimir Constancia
+                                    </button>
+                                </div>
+                            </div>
+                            <ng-template #mensajeEspera>
+                                <p class="small text-muted mb-0">Estará disponible una vez aprobado el Ensayo Final.</p>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="alert alert-primary border-0 rounded-4 mt-4 d-flex align-items-start p-4 shadow-sm">
+                <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                <div>
+                    <h6 class="fw-bold">Información Importante</h6>
+                    <small class="opacity-75">
+                        Los archivos deben subirse únicamente en formato PDF (máximo 5MB).
+                        El ensayo final solo se habilita cuando los 3 reportes bimestrales están en estado "APROBADO".
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

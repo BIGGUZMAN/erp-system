@@ -82,6 +82,15 @@ export class DashboardAlumnoComponent implements OnInit {
     }
   }
 
+  /**
+   * Método global para abrir archivos (PDFs o HTML renderizado)
+   */
+  abrirConstancia(url: string) {
+    if (url) {
+      window.open(url, '_blank');
+    }
+  }
+
   cambiarSeccion(seccion: string): void {
     this.seccionActiva = seccion;
 

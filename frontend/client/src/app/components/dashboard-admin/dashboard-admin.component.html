@@ -1,1 +1,202 @@
-<p>dashboard-admin works!</p>
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <div class="title-section">
+            <h1>Salud Institucional</h1>
+            <p>Métricas en tiempo real para el periodo académico actual 2026-B.</p>
+        </div>
+        <div class="action-buttons">
+            <button class="btn-secondary"><i class="fas fa-building"></i> Nueva Empresa</button>
+            <button class="btn-primary" (click)="abrirModalRegistro()">
+                <i class="fas fa-user-plus"></i> Registrar Alumno
+            </button>
+        </div>
+    </header>
+
+    <section class="metrics-grid">
+        <div class="metric-card main-blue">
+            <div class="card-icon"><i class="fas fa-globe"></i></div>
+            <div class="card-content">
+                <div class="numbers">
+                    <span class="metric-value">{{ stats.totalIngles }}</span>
+                    <span class="metric-label">TOTAL DE ALUMNOS EN INGLÉS</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card blue-border">
+            <div class="card-icon"><i class="fas fa-hand-holding-heart"></i></div>
+            <div class="card-content">
+                <div class="numbers">
+                    <span class="metric-value">{{ stats.activeSocialService }}</span>
+                    <span class="metric-label">Servicio Social Activo</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card blue-border">
+            <div class="card-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="card-content">
+                <div class="numbers">
+                    <span class="metric-value">{{ stats.activeResidencies }}</span>
+                    <span class="metric-label">Residencias Activas</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="admin-sections-grid">
+        <section class="validation-section">
+            <div class="section-header">
+                <h2><i class="fas fa-clipboard-check"></i> Por Validar ({{ getPendientes().length }})</h2>
+            </div>
+
+            <div class="validation-list">
+                <ng-container *ngFor="let pendiente of getPendientes()">
+                    <div class="validation-item">
+                        <div class="user-info" style="flex-wrap: wrap; gap: 10px;">
+                            <div class="user-icon-container"><i class="fas fa-user"></i></div>
+                            <div class="user-details" style="min-width: 200px;">
+                                <h3>{{ pendiente.nombre_completo }}</h3>
+                                <p class="document-name">{{ pendiente.nombreMostrar }}</p>
+                            </div>
+                        </div>
+                        <div class="item-status">
+                            <div class="actions d-flex gap-2">
+                                <button class="btn-review" (click)="revisar(pendiente)" title="Ver Archivo">
+                                    <i class="fas fa-eye"></i> Revisar
+                                </button>
+                                <button class="btn-review"
+                                    style="background-color: #10b981; color: white; border: none;"
+                                    (click)="validar(pendiente, 'APROBADO')" title="Aprobar Documento">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn-review"
+                                    style="background-color: #ef4444; color: white; border: none;"
+                                    (click)="validar(pendiente, 'RECHAZADO')" title="Rechazar Documento">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <div *ngIf="getPendientes().length === 0" class="empty-state">
+                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    <p>No hay documentos para revisión.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="validation-section blocked-area">
+            <div class="section-header">
+                <h2><i class="fas fa-lock"></i> Reportes Bloqueados ({{ getBloqueados().length }})</h2>
+            </div>
+
+            <div class="validation-list">
+                <ng-container *ngFor="let bloqueado of getBloqueados()">
+                    <div class="validation-item">
+                        <div class="user-info">
+                            <div class="user-icon-container">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="user-details">
+                                <h3>{{ bloqueado.nombre_completo }}</h3>
+                                <p class="document-name">Plazo Vencido: {{ bloqueado.nombreMostrar }}</p>
+                            </div>
+                        </div>
+                        <div class="item-status">
+                            <div class="actions">
+                                <button class="btn-unlock" (click)="desbloquear(bloqueado)">
+                                    <i class="fas fa-unlock-alt"></i> Desbloquear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <div *ngIf="getBloqueados().length === 0" class="empty-state">
+                    <i class="fas fa-shield-alt" style="color: #6b7280; opacity: 0.5;"></i>
+                    <p>No hay alumnos bloqueados.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="validation-section">
+            <div class="section-header">
+                <h2><i class="fas fa-file-contract"></i> Constancias Pendientes ({{ getConstanciasPendientes().length
+                    }})</h2>
+            </div>
+
+            <div class="validation-list">
+                <ng-container *ngFor="let item of getConstanciasPendientes()">
+                    <div class="validation-item">
+                        <div class="user-info">
+                            <div class="user-icon-container" style="background-color: #dbeafe;">
+                                <i class="fas fa-file-signature" style="color: #2563eb;"></i>
+                            </div>
+                            <div class="user-details">
+                                <h3>{{ item.nombre_completo }}</h3>
+                                <p class="document-name" style="color: #2563eb;">Pendiente de generación</p>
+                            </div>
+                        </div>
+                        <div class="item-status">
+                            <div class="actions">
+                                <button class="btn-review" style="background-color: #2563eb; color: white;"
+                                    (click)="generarConstancia(item)">
+                                    <i class="fas fa-magic"></i> Generar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <div *ngIf="getConstanciasPendientes().length === 0" class="empty-state">
+                    <i class="fas fa-check-circle" style="color: #6b7280; opacity: 0.5;"></i>
+                    <p>No hay constancias pendientes.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="modal-overlay" *ngIf="mostrarFormularioRegistro">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="header-info">
+                    <h3>Registrar Alumno</h3>
+                    <p>Complete los datos para generar el acceso institucional.</p>
+                </div>
+                <button class="btn-close" (click)="mostrarFormularioRegistro = false">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Número de Control</label>
+                    <input type="text" [(ngModel)]="nuevoAlumno.numero_control" placeholder="221130XXX"
+                        class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" [(ngModel)]="nuevoAlumno.nombre_completo" placeholder="Nombre Apellido"
+                        class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Correo Institucional (@gamadero.tecnm.mx)</label>
+                    <input type="email" [(ngModel)]="nuevoAlumno.correo" placeholder="L22113XXX@gamadero.tecnm.mx"
+                        class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Carrera</label>
+                    <select [(ngModel)]="nuevoAlumno.carrera_id" class="form-control">
+                        <option value="">Seleccione una carrera</option>
+                        <option *ngFor="let c of carreras" [value]="c.id_carrera">{{ c.nombre }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" (click)="mostrarFormularioRegistro = false">Cancelar</button>
+                <div class="main-actions">
+                    <button class="btn-primary" (click)="guardarAlumno()">Confirmar Registro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

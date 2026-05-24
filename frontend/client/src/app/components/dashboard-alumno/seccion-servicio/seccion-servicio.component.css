@@ -1,0 +1,84 @@
+/* Estilos base existentes */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.rounded-4 {
+    border-radius: 1.25rem !important;
+}
+
+.bg-primary-subtle {
+    background-color: #e7f1ff !important;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.bi-check-circle-fill {
+    font-size: 1.1rem;
+}
+
+/* --- NUEVAS MODIFICACIONES PARA RETROALIMENTACIÓN --- */
+
+/* Contenedor de observaciones (motivo de rechazo) */
+.bg-danger-subtle {
+    background-color: #fff5f5 !important;
+    border-color: #feb2b2 !important;
+}
+
+/* Animación de entrada para las alertas */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bg-danger-subtle {
+    animation: slideIn 0.4s ease-out;
+}
+
+/* Estilo para los badges de estado */
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0.5em 0.8em;
+}
+
+/* Mejoras visuales para el estado de Bloqueado */
+.opacity-75.bg-light {
+    filter: grayscale(1);
+    border: 1px dashed #dee2e6 !important;
+}
+
+/* Estilo para el icono de advertencia en las notas de rechazo */
+.text-danger.fw-bold i {
+    vertical-align: middle;
+}
+
+/* Ajuste de tipografía para observaciones */
+small.text-dark {
+    line-height: 1.4;
+    display: inline-block;
+}
+
+/* Efecto visual de "Corregir" en el botón */
+.btn-primary.rounded-pill {
+    transition: all 0.3s ease;
+}
+
+.btn-primary.rounded-pill:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
