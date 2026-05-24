@@ -22,20 +22,20 @@ services:
       - ./backend:/var/www
     ports:
       - "8000:8000"
-    # USA ESTE COMANDO, es mucho más estable para Docker
-    command: php artisan serve --host=0.0.0.0 --port=8000
     depends_on:
       - mysql
 
   angular:
-    image: node:20
+    build:
+      context: ./frontend/client
     container_name: erp_angular
-    working_dir: /app/client
-    volumes:
-      - ./frontend/client:/app/client
     ports:
       - "4200:4200"
-    command: bash -c "npm install && npx ng serve --host 0.0.0.0 --port 4200"
+    volumes:
+      - ./frontend/client:/app
+      - /app/node_modules
+    depends_on:
+      - laravel
 
 volumes:
   mysql_data:
