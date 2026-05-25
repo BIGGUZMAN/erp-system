@@ -13,50 +13,48 @@ export class ServicioSocialService {
     constructor(private http: HttpClient) { }
 
     /**
-     * Obtiene la lista de alumnos pendientes y bloqueados para el Administrador
-     * Ruta en Laravel: GET /api/servicio-social/admin/pendientes
+     * Obtiene la lista unificada de pendientes para el Administrador
+     * (reportes EN_REVISION, reportes BLOQUEADO_VENCIDO, ensayos EN_REVISION, cartas pendientes)
+     * Ruta: GET /api/servicio-social/admin/pendientes
      */
     getAlumnosAdmin(): Observable<any[]> {
         return this.http.get<any[]>(`${this.apiUrl}/admin/pendientes`);
     }
 
     /**
-     * Obtiene la lista de alumnos que ya completaron todo para el Administrador
-     * Ruta en Laravel: GET /api/servicio-social/admin/alumnos-completados
+     * Obtiene la lista de alumnos que ya completaron todo (historial)
+     * Ruta: GET /api/servicio-social/admin/alumnos-completados
      */
     getAlumnosCompletadosAdmin(): Observable<any[]> {
         return this.http.get<any[]>(`${this.apiUrl}/admin/alumnos-completados`);
     }
 
     /**
-     * Obtiene el estado actual del alumno (Documentos iniciales y Reportes)
-     * Ruta en Laravel: GET /api/servicio-social/alumno/estado/{usuarioId}
+     * Obtiene el estado actual del alumno
+     * Ruta: GET /api/servicio-social/alumno/estado/{usuarioId}
      */
     getEstado(usuarioId: string): Observable<any> {
-        const urlFinal = `${this.apiUrl}/alumno/estado/${usuarioId}`;
-        console.log('DEBUG: ServicioSocialService llamando a:', urlFinal);
-        return this.http.get(urlFinal);
+        return this.http.get(`${this.apiUrl}/alumno/estado/${usuarioId}`);
     }
 
     /**
-     * Sube los documentos de la fase inicial (Kardex, Constancia, etc.)
-     * Ruta en Laravel: POST /api/servicio-social/alumno/subir-documento
+     * Sube los documentos iniciales (Kardex, Constancia, etc.)
+     * Ruta: POST /api/servicio-social/alumno/subir-documento
      */
     subirDocumento(formData: FormData): Observable<any> {
         return this.http.post(`${this.apiUrl}/alumno/subir-documento`, formData);
     }
 
     /**
-     * Sube los reportes bimestrales 1, 2 o 3. 
-     * Ruta en Laravel: POST /api/servicio-social/alumno/subir-reporte
+     * Sube los reportes bimestrales 1, 2 o 3.
+     * Ruta: POST /api/servicio-social/alumno/subir-reporte
      */
     subirReporte(formData: FormData): Observable<any> {
         return this.http.post(`${this.apiUrl}/alumno/subir-reporte`, formData);
     }
 
     /**
-     * Sube el Ensayo Final
-     * Reutiliza la ruta de subir-reporte pero el backend lo detecta por la falta de reporte_id
+     * Sube el Ensayo Final (reutiliza la misma ruta, el backend detecta por tipo_entidad=ensayo)
      */
     subirEnsayoFinal(formData: FormData): Observable<any> {
         return this.http.post(`${this.apiUrl}/alumno/subir-reporte`, formData);
@@ -64,7 +62,7 @@ export class ServicioSocialService {
 
     /**
      * Desbloquea un reporte vencido asignando una nueva fecha límite
-     * Ruta en Laravel: POST /api/servicio-social/admin/desbloquear-reporte
+     * Ruta: POST /api/servicio-social/admin/desbloquear-reporte
      */
     desbloquearReporte(reporteId: number, nuevaFecha: string): Observable<any> {
         return this.http.post(`${this.apiUrl}/admin/desbloquear-reporte`, {
@@ -75,7 +73,7 @@ export class ServicioSocialService {
 
     /**
      * Valida un reporte bimestral (APROBADO/RECHAZADO) con comentarios
-     * Ruta en Laravel: POST /api/servicio-social/admin/validar-reporte
+     * Ruta: POST /api/servicio-social/admin/validar-reporte
      */
     validarReporte(reporteId: number, accion: 'APROBADO' | 'RECHAZADO', observaciones: string): Observable<any> {
         return this.http.post(`${this.apiUrl}/admin/validar-reporte`, {
@@ -87,7 +85,7 @@ export class ServicioSocialService {
 
     /**
      * Valida el Ensayo Final (APROBADO/RECHAZADO) con comentarios
-     * Se sincroniza con la lógica del dashboard-admin
+     * Ruta: POST /api/servicio-social/admin/validar-documento
      */
     validarEnsayo(documentoId: number, accion: 'APROBADO' | 'RECHAZADO', observaciones: string = ''): Observable<any> {
         return this.http.post(`${this.apiUrl}/admin/validar-documento`, {
@@ -98,10 +96,31 @@ export class ServicioSocialService {
     }
 
     /**
+     * Envía la Carta de Término de Servicio Social al alumno.
+     * Solo disponible cuando el ensayo final fue aprobado.
+     * Ruta: POST /api/servicio-social/admin/enviar-carta
+     */
+    enviarCarta(data: {
+        usuario_id: string;
+        nombre_dependencia?: string;
+        horas?: number;
+    }): Observable<any> {
+        return this.http.post(`${this.apiUrl}/admin/enviar-carta`, data);
+    }
+
+    /**
      * Genera la constancia de liberación para el alumno (Admin)
-     * Ruta en Laravel: POST /api/servicio-social/admin/liberar-alumno
+     * @deprecated Usar enviarCarta() en su lugar
      */
     liberarAlumno(data: any): Observable<any> {
-        return this.http.post(`${this.apiUrl}/admin/liberar-alumno`, data);
+        return this.http.post(`${this.apiUrl}/admin/enviar-carta`, data);
+    }
+
+    /**
+     * Actualiza los logos institucionales (header y/o footer banner)
+     * Ruta: POST /api/servicio-social/admin/actualizar-logos
+     */
+    actualizarLogos(formData: FormData): Observable<any> {
+        return this.http.post(`${this.apiUrl}/admin/actualizar-logos`, formData);
     }
 }

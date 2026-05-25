@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->id('id_usuario');
             $table->string('numero_control')->unique();
             $table->string('correo')->unique();
+            $table->string('nombre_completo')->nullable();
             $table->string('password_hash')->nullable();
             $table->string('rol')->default('user');
             $table->boolean('is_active')->default(true);

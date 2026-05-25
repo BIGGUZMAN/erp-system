@@ -31,7 +31,15 @@ export class DashboardAdminComponent implements OnInit {
     carrera_id: ''
   };
 
-  // Lista base de datos cargada del backend
+  // Modal para enviar carta
+  mostrarModalCarta: boolean = false;
+  itemCartaActual: any = null;
+  formCarta = {
+    nombre_dependencia: '',
+    horas: 480
+  };
+
+  // Lista unificada del backend
   alumnosPendientes: any[] = [];
 
   // Objeto de estadísticas
@@ -54,30 +62,30 @@ export class DashboardAdminComponent implements OnInit {
     this.cargarPendientes();
   }
 
-  /**
-   * Filtra alumnos con estado 'Entregado' o 'Pendiente' para la lista de revisión
-   */
+  // ─────────────────────────────────────────────
+  // FILTROS DE SECCIONES
+  // ─────────────────────────────────────────────
+
+  /** Reportes y ensayos EN_REVISION → sección "Por Validar" */
   getPendientes() {
     return this.alumnosPendientes.filter(a =>
-      (a.estado === 'Entregado' || a.estado === 'Pendiente') && a.tipo_entidad !== null
+      a.estado === 'Entregado' && (a.tipo_entidad === 'reporte' || a.tipo_entidad === 'ensayo')
     );
   }
 
-  /**
-   * Filtra alumnos con estado 'Bloqueado' para la sección de plazos vencidos
-   */
+  /** Reportes BLOQUEADO_VENCIDO → sección "Reportes Bloqueados" */
   getBloqueados() {
     return this.alumnosPendientes.filter(a => a.estado === 'Bloqueado');
   }
 
-  /**
-   * Filtra alumnos con constancia pendiente de generar
-   */
-  getConstanciasPendientes() {
-    return this.alumnosPendientes.filter(a =>
-      a.constancia && a.constancia.url === 'PENDIENTE_GENERAR'
-    );
+  /** Ensayos aprobados sin carta generada → sección "Cartas de Término" */
+  getCartasPendientes() {
+    return this.alumnosPendientes.filter(a => a.tipo_entidad === 'carta_pendiente');
   }
+
+  // ─────────────────────────────────────────────
+  // CARGA DE DATOS
+  // ─────────────────────────────────────────────
 
   cargarEstadisticas(): void {
     this.http.get<any>(`${this.apiUrl}/dashboard/stats`).subscribe({
@@ -99,27 +107,17 @@ export class DashboardAdminComponent implements OnInit {
   cargarPendientes(): void {
     this.ssService.getAlumnosAdmin().subscribe({
       next: (res: any) => {
-        const dataArray = Array.isArray(res) ? res : [];
-
-        this.alumnosPendientes = dataArray
-          .filter(item =>
-            item.tipo_entidad === 'reporte' ||
-            item.tipo_entidad === 'ensayo' ||
-            item.estado === 'Bloqueado' ||
-            (item.constancia && item.constancia.url === 'PENDIENTE_GENERAR')
-          )
-          .map(item => ({
-            ...item,
-            nombreMostrar: item.nombreMostrar || (item.tipo_entidad === 'reporte' ? `REPORTE BIMESTRAL #${item.numero_reporte}` : 'ENSAYO FINAL')
-          }));
-
-        // Actualizamos contador de pendientes en tiempo real
+        this.alumnosPendientes = Array.isArray(res) ? res : [];
         this.stats.pendientesRevision = this.getPendientes().length;
         this.cdr.detectChanges();
       },
       error: (err: any) => console.error('Error al cargar pendientes:', err)
     });
   }
+
+  // ─────────────────────────────────────────────
+  // REGISTRO DE ALUMNO
+  // ─────────────────────────────────────────────
 
   abrirModalRegistro(): void {
     this.http.get<any>(`${this.apiUrl}/carreras`).subscribe({
@@ -148,69 +146,58 @@ export class DashboardAdminComponent implements OnInit {
     });
   }
 
+  // ─────────────────────────────────────────────
+  // DESBLOQUEAR REPORTE VENCIDO
+  // ─────────────────────────────────────────────
+
   desbloquear(pendiente: any): void {
-    const fechaSugerida = new Date().toISOString().split('T')[0];
+    const hoy = new Date();
+    hoy.setDate(hoy.getDate() + 14); // Sugerir 2 semanas desde hoy
+    const fechaSugerida = hoy.toISOString().split('T')[0];
+
     const nuevaFecha = prompt(
-      `Asignar nueva fecha límite para ${pendiente.nombre_completo}:`,
+      `Asignar nueva fecha límite para ${pendiente.nombre_completo}\n(Reporte #${pendiente.numero_reporte}):`,
       fechaSugerida
     );
 
-    if (nuevaFecha) {
-      this.ssService.desbloquearReporte(pendiente.id_entidad, nuevaFecha).subscribe({
-        next: (res: any) => {
-          alert(res.message || 'Reporte desbloqueado correctamente.');
-          this.cargarPendientes();
-          this.cargarEstadisticas();
-        },
-        error: (err: any) => {
-          console.error('Error al desbloquear:', err);
-          alert(err.error?.message || 'No se pudo desbloquear el reporte.');
-        }
-      });
-    }
+    if (!nuevaFecha) return;
+
+    this.ssService.desbloquearReporte(pendiente.id_entidad, nuevaFecha).subscribe({
+      next: (res: any) => {
+        alert(res.message || 'Reporte desbloqueado correctamente.');
+        this.cargarPendientes();
+        this.cargarEstadisticas();
+      },
+      error: (err: any) => {
+        console.error('Error al desbloquear:', err);
+        alert(err.error?.message || 'No se pudo desbloquear el reporte.');
+      }
+    });
   }
+
+  // ─────────────────────────────────────────────
+  // REVISAR ARCHIVO
+  // ─────────────────────────────────────────────
 
   revisar(pendiente: any): void {
     if (!pendiente.url_archivo) {
       alert('Este registro no tiene un archivo asociado.');
       return;
     }
-
     let urlFinal = pendiente.url_archivo;
-    const currentHost = window.location.hostname;
-
-    if (urlFinal.includes('127.0.0.1') && currentHost === 'localhost') {
+    if (urlFinal.includes('127.0.0.1') && window.location.hostname === 'localhost') {
       urlFinal = urlFinal.replace('127.0.0.1', 'localhost');
     }
-
-    const separador = urlFinal.includes('?') ? '&' : '?';
-    const urlConCache = `${urlFinal}${separador}t=${new Date().getTime()}`;
-
+    const urlConCache = `${urlFinal}${urlFinal.includes('?') ? '&' : '?'}t=${Date.now()}`;
     window.open(urlConCache, '_blank', 'noopener,noreferrer');
   }
 
-  /**
-   * Método para generar la constancia
-   */
-  generarConstancia(alumno: any): void {
-    const id = alumno.id_entidad || alumno.id;
-    this.http.post(`${this.apiUrl}/generar-constancia`, { id: id }).subscribe({
-      next: (res: any) => {
-        alert('Constancia generada con éxito');
-        this.cargarPendientes(); // Refrescar para que desaparezca de la lista
-      },
-      error: (err) => {
-        console.error('Error al generar:', err);
-        alert('Ocurrió un error al generar la constancia.');
-      }
-    });
-  }
+  // ─────────────────────────────────────────────
+  // VALIDAR REPORTE O ENSAYO
+  // ─────────────────────────────────────────────
 
-  /**
-   * Método principal para validar o rechazar documentos con comentarios
-   */
   validar(alumno: any, accion: 'APROBADO' | 'RECHAZADO'): void {
-    const idEntidad = alumno.id_entidad || alumno.id;
+    const idEntidad = alumno.id_entidad;
     const esReporte = alumno.tipo_entidad === 'reporte';
 
     if (!idEntidad) {
@@ -220,10 +207,12 @@ export class DashboardAdminComponent implements OnInit {
 
     let observaciones = 'Documento aprobado correctamente.';
 
-    // Si es rechazo, solicitamos el motivo al usuario
     if (accion === 'RECHAZADO') {
-      const motivo = prompt('Ingresa el motivo del rechazo (se mostrará al alumno):', 'El documento no cumple con los requisitos institucionales.');
-      if (motivo === null) return; // Si cancela el prompt, no hacemos nada
+      const motivo = prompt(
+        'Ingresa el motivo del rechazo (se mostrará al alumno):',
+        'El documento no cumple con los requisitos institucionales.'
+      );
+      if (motivo === null) return; // Canceló
       observaciones = motivo;
     }
 
@@ -233,18 +222,67 @@ export class DashboardAdminComponent implements OnInit {
         error: (err) => this.errorValidacion(err)
       });
     } else {
-      // Para el ensayo final, enviamos solo idEntidad, acción y observaciones
+      // Ensayo final
       this.ssService.validarEnsayo(idEntidad, accion, observaciones).subscribe({
         next: () => {
-          this.finalizarValidacion(accion);
+          if (accion === 'APROBADO') {
+            alert('✅ Ensayo Final aprobado. El alumno aparecerá en "Cartas de Término" para que le envíes la constancia.');
+          } else {
+            alert('❌ Ensayo rechazado. El alumno podrá corregirlo y volver a subirlo.');
+          }
+          this.cargarPendientes();
+          this.cargarEstadisticas();
         },
         error: (err) => this.errorValidacion(err)
       });
     }
   }
 
+  // ─────────────────────────────────────────────
+  // ENVIAR CARTA DE TÉRMINO
+  // ─────────────────────────────────────────────
+
+  abrirModalCarta(item: any): void {
+    this.itemCartaActual = item;
+    this.formCarta = { nombre_dependencia: '', horas: 480 };
+    this.mostrarModalCarta = true;
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalCarta(): void {
+    this.mostrarModalCarta = false;
+    this.itemCartaActual = null;
+    this.cdr.detectChanges();
+  }
+
+  confirmarEnviarCarta(): void {
+    if (!this.itemCartaActual) return;
+
+    const usuarioId = this.itemCartaActual.usuario_id || this.itemCartaActual.numero_control;
+
+    this.ssService.enviarCarta({
+      usuario_id: usuarioId,
+      nombre_dependencia: this.formCarta.nombre_dependencia,
+      horas: this.formCarta.horas
+    }).subscribe({
+      next: (res: any) => {
+        alert(`✅ ${res.message || 'Carta de término enviada correctamente.'}`);
+        this.cerrarModalCarta();
+        this.cargarPendientes();
+      },
+      error: (err: any) => {
+        console.error('Error al enviar carta:', err);
+        alert(err.error?.error || 'Error al generar la carta de término.');
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────
+
   private finalizarValidacion(accion: string): void {
-    alert(`Documento ${accion} con éxito.`);
+    alert(`Documento ${accion === 'APROBADO' ? '✅ aprobado' : '❌ rechazado'} correctamente.`);
     this.cargarPendientes();
     this.cargarEstadisticas();
   }
@@ -259,5 +297,109 @@ export class DashboardAdminComponent implements OnInit {
     this.urlSegura = null;
     this.alumnoSeleccionado = null;
     this.cdr.detectChanges();
+  }
+
+  // ─────────────────────────────────────────────
+  // ACTUALIZAR LOGOS INSTITUCIONALES
+  // ─────────────────────────────────────────────
+
+  mostrarModalLogos: boolean = false;
+  headerFile: File | null = null;
+  footerFile: File | null = null;
+  headerPreview: string | null = null;
+  footerPreview: string | null = null;
+  subiendoLogos: boolean = false;
+
+  abrirModalLogos(): void {
+    this.headerFile = null;
+    this.footerFile = null;
+    this.headerPreview = null;
+    this.footerPreview = null;
+    this.subiendoLogos = false;
+    this.mostrarModalLogos = true;
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalLogos(): void {
+    this.mostrarModalLogos = false;
+    this.headerFile = null;
+    this.footerFile = null;
+    this.headerPreview = null;
+    this.footerPreview = null;
+    this.cdr.detectChanges();
+  }
+
+  onHeaderSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.headerFile = input.files[0];
+      this.generarPreview(this.headerFile, 'header');
+    }
+  }
+
+  onFooterSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.footerFile = input.files[0];
+      this.generarPreview(this.footerFile, 'footer');
+    }
+  }
+
+  onDropHeader(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
+      this.headerFile = event.dataTransfer.files[0];
+      this.generarPreview(this.headerFile, 'header');
+    }
+  }
+
+  onDropFooter(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
+      this.footerFile = event.dataTransfer.files[0];
+      this.generarPreview(this.footerFile, 'footer');
+    }
+  }
+
+  private generarPreview(file: File, tipo: 'header' | 'footer'): void {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (tipo === 'header') {
+        this.headerPreview = e.target?.result as string;
+      } else {
+        this.footerPreview = e.target?.result as string;
+      }
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  confirmarActualizarLogos(): void {
+    if (!this.headerFile && !this.footerFile) return;
+
+    this.subiendoLogos = true;
+    this.cdr.detectChanges();
+
+    const formData = new FormData();
+    if (this.headerFile) {
+      formData.append('header_banner', this.headerFile);
+    }
+    if (this.footerFile) {
+      formData.append('footer_banner', this.footerFile);
+    }
+
+    this.ssService.actualizarLogos(formData).subscribe({
+      next: (res: any) => {
+        this.subiendoLogos = false;
+        alert(`✅ ${res.message || 'Logos actualizados correctamente.'}`);
+        this.cerrarModalLogos();
+      },
+      error: (err: any) => {
+        this.subiendoLogos = false;
+        console.error('Error al actualizar logos:', err);
+        alert(err.error?.error || err.error?.message || 'Error al actualizar los logos institucionales.');
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

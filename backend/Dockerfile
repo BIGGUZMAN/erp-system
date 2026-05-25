@@ -6,4 +6,8 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+COPY public/images/logos /var/www/public/images/logos
+
 WORKDIR /var/www
+
+CMD ["php", "artisan", "serve", "--host", "0.0.0.0", "--port", "8000"]

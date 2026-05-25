@@ -1,10 +1,13 @@
 <div class="dashboard-container">
     <header class="dashboard-header">
         <div class="title-section">
-            <h1>Salud Institucional</h1>
-            <p>Métricas en tiempo real para el periodo académico actual 2026-B.</p>
+            <h1>Panel de Administración</h1>
+            <p>Gestión de Servicio Social · Periodo académico 2026-B</p>
         </div>
         <div class="action-buttons">
+            <button class="btn-secondary" (click)="abrirModalLogos()" style="display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-images"></i> Actualizar Logos
+            </button>
             <button class="btn-secondary"><i class="fas fa-building"></i> Nueva Empresa</button>
             <button class="btn-primary" (click)="abrirModalRegistro()">
                 <i class="fas fa-user-plus"></i> Registrar Alumno
@@ -12,96 +15,120 @@
         </div>
     </header>
 
+    <!-- MÉTRICAS -->
     <section class="metrics-grid">
         <div class="metric-card main-blue">
             <div class="card-icon"><i class="fas fa-globe"></i></div>
             <div class="card-content">
                 <div class="numbers">
                     <span class="metric-value">{{ stats.totalIngles }}</span>
-                    <span class="metric-label">TOTAL DE ALUMNOS EN INGLÉS</span>
+                    <span class="metric-label">ALUMNOS EN INGLÉS</span>
                 </div>
             </div>
         </div>
-
         <div class="metric-card blue-border">
             <div class="card-icon"><i class="fas fa-hand-holding-heart"></i></div>
             <div class="card-content">
                 <div class="numbers">
                     <span class="metric-value">{{ stats.activeSocialService }}</span>
-                    <span class="metric-label">Servicio Social Activo</span>
+                    <span class="metric-label">SERVICIO SOCIAL ACTIVO</span>
                 </div>
             </div>
         </div>
-
         <div class="metric-card blue-border">
             <div class="card-icon"><i class="fas fa-briefcase"></i></div>
             <div class="card-content">
                 <div class="numbers">
                     <span class="metric-value">{{ stats.activeResidencies }}</span>
-                    <span class="metric-label">Residencias Activas</span>
+                    <span class="metric-label">RESIDENCIAS ACTIVAS</span>
+                </div>
+            </div>
+        </div>
+        <div class="metric-card" style="border-left: 4px solid #f59e0b; background: #fffbeb;">
+            <div class="card-icon" style="background:#fef3c7;"><i class="fas fa-file-signature" style="color:#d97706;"></i></div>
+            <div class="card-content">
+                <div class="numbers">
+                    <span class="metric-value" style="color:#d97706;">{{ getCartasPendientes().length }}</span>
+                    <span class="metric-label">CARTAS PENDIENTES</span>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- SECCIONES DE GESTIÓN -->
     <div class="admin-sections-grid">
+
+        <!-- ═══════════════════════════════
+             1. POR VALIDAR
+             ═══════════════════════════════ -->
         <section class="validation-section">
             <div class="section-header">
                 <h2><i class="fas fa-clipboard-check"></i> Por Validar ({{ getPendientes().length }})</h2>
             </div>
-
             <div class="validation-list">
                 <ng-container *ngFor="let pendiente of getPendientes()">
                     <div class="validation-item">
-                        <div class="user-info" style="flex-wrap: wrap; gap: 10px;">
-                            <div class="user-icon-container"><i class="fas fa-user"></i></div>
-                            <div class="user-details" style="min-width: 200px;">
+                        <div class="user-info" style="flex-wrap:wrap; gap:10px;">
+                            <div class="user-icon-container">
+                                <i [class]="pendiente.tipo_entidad === 'ensayo' ? 'fas fa-graduation-cap' : 'fas fa-file-alt'"></i>
+                            </div>
+                            <div class="user-details" style="min-width:180px;">
                                 <h3>{{ pendiente.nombre_completo }}</h3>
-                                <p class="document-name">{{ pendiente.nombreMostrar }}</p>
+                                <p class="document-name">
+                                    <span class="badge"
+                                        [style.background]="pendiente.tipo_entidad === 'ensayo' ? '#7c3aed' : '#2563eb'"
+                                        style="color:white; font-size:11px; padding:3px 8px; border-radius:999px;">
+                                        {{ pendiente.tipo_entidad === 'ensayo' ? 'ENSAYO FINAL' : 'REPORTE #' + pendiente.numero_reporte }}
+                                    </span>
+                                </p>
                             </div>
                         </div>
                         <div class="item-status">
                             <div class="actions d-flex gap-2">
                                 <button class="btn-review" (click)="revisar(pendiente)" title="Ver Archivo">
-                                    <i class="fas fa-eye"></i> Revisar
+                                    <i class="fas fa-eye"></i> Ver
                                 </button>
                                 <button class="btn-review"
-                                    style="background-color: #10b981; color: white; border: none;"
-                                    (click)="validar(pendiente, 'APROBADO')" title="Aprobar Documento">
+                                    style="background:#10b981; color:white; border:none;"
+                                    (click)="validar(pendiente, 'APROBADO')" title="Aprobar">
                                     <i class="fas fa-check"></i>
                                 </button>
                                 <button class="btn-review"
-                                    style="background-color: #ef4444; color: white; border: none;"
-                                    (click)="validar(pendiente, 'RECHAZADO')" title="Rechazar Documento">
+                                    style="background:#ef4444; color:white; border:none;"
+                                    (click)="validar(pendiente, 'RECHAZADO')" title="Rechazar">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </ng-container>
-
                 <div *ngIf="getPendientes().length === 0" class="empty-state">
-                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    <i class="fas fa-check-circle" style="color:#10b981;"></i>
                     <p>No hay documentos para revisión.</p>
                 </div>
             </div>
         </section>
 
+        <!-- ═══════════════════════════════
+             2. REPORTES BLOQUEADOS
+             ═══════════════════════════════ -->
         <section class="validation-section blocked-area">
             <div class="section-header">
                 <h2><i class="fas fa-lock"></i> Reportes Bloqueados ({{ getBloqueados().length }})</h2>
             </div>
-
             <div class="validation-list">
                 <ng-container *ngFor="let bloqueado of getBloqueados()">
                     <div class="validation-item">
                         <div class="user-info">
-                            <div class="user-icon-container">
-                                <i class="fas fa-exclamation-triangle"></i>
+                            <div class="user-icon-container" style="background:#fee2e2;">
+                                <i class="fas fa-exclamation-triangle" style="color:#dc2626;"></i>
                             </div>
                             <div class="user-details">
                                 <h3>{{ bloqueado.nombre_completo }}</h3>
-                                <p class="document-name">Plazo Vencido: {{ bloqueado.nombreMostrar }}</p>
+                                <p class="document-name">Plazo vencido · Reporte #{{ bloqueado.numero_reporte }}</p>
+                                <small *ngIf="bloqueado.fecha_limite" style="color:#6b7280;">
+                                    Venció: {{ bloqueado.fecha_limite | date:'dd/MM/yyyy' }}
+                                </small>
                             </div>
                         </div>
                         <div class="item-status">
@@ -113,51 +140,67 @@
                         </div>
                     </div>
                 </ng-container>
-
                 <div *ngIf="getBloqueados().length === 0" class="empty-state">
-                    <i class="fas fa-shield-alt" style="color: #6b7280; opacity: 0.5;"></i>
+                    <i class="fas fa-shield-alt" style="color:#6b7280; opacity:0.5;"></i>
                     <p>No hay alumnos bloqueados.</p>
                 </div>
             </div>
         </section>
 
-        <section class="validation-section">
-            <div class="section-header">
-                <h2><i class="fas fa-file-contract"></i> Constancias Pendientes ({{ getConstanciasPendientes().length
-                    }})</h2>
+        <!-- ═══════════════════════════════
+             3. CARTAS DE TÉRMINO PENDIENTES
+             ═══════════════════════════════ -->
+        <section class="validation-section"
+            style="border-left: 4px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);">
+            <div class="section-header" style="border-bottom: 1px solid #fde68a;">
+                <h2 style="color:#b45309;">
+                    <i class="fas fa-file-contract"></i>
+                    Cartas de Término ({{ getCartasPendientes().length }})
+                </h2>
+                <small style="color:#92400e; font-size:12px;">
+                    Alumnos con Ensayo Final aprobado · Pendiente enviar carta
+                </small>
             </div>
-
             <div class="validation-list">
-                <ng-container *ngFor="let item of getConstanciasPendientes()">
-                    <div class="validation-item">
+                <ng-container *ngFor="let item of getCartasPendientes()">
+                    <div class="validation-item" style="border-left: 3px solid #f59e0b;">
                         <div class="user-info">
-                            <div class="user-icon-container" style="background-color: #dbeafe;">
-                                <i class="fas fa-file-signature" style="color: #2563eb;"></i>
+                            <div class="user-icon-container" style="background:#fef3c7;">
+                                <i class="fas fa-graduation-cap" style="color:#d97706;"></i>
                             </div>
                             <div class="user-details">
                                 <h3>{{ item.nombre_completo }}</h3>
-                                <p class="document-name" style="color: #2563eb;">Pendiente de generación</p>
+                                <p class="document-name" style="color:#d97706;">
+                                    <i class="fas fa-check-circle me-1"></i>Ensayo Final Aprobado
+                                </p>
+                                <small style="color:#6b7280;">
+                                    Control: {{ item.numero_control }}
+                                </small>
                             </div>
                         </div>
                         <div class="item-status">
                             <div class="actions">
-                                <button class="btn-review" style="background-color: #2563eb; color: white;"
-                                    (click)="generarConstancia(item)">
-                                    <i class="fas fa-magic"></i> Generar
+                                <button class="btn-review"
+                                    style="background:#d97706; color:white; border:none; display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;"
+                                    (click)="abrirModalCarta(item)">
+                                    <i class="fas fa-paper-plane"></i> Enviar Carta
                                 </button>
                             </div>
                         </div>
                     </div>
                 </ng-container>
-
-                <div *ngIf="getConstanciasPendientes().length === 0" class="empty-state">
-                    <i class="fas fa-check-circle" style="color: #6b7280; opacity: 0.5;"></i>
-                    <p>No hay constancias pendientes.</p>
+                <div *ngIf="getCartasPendientes().length === 0" class="empty-state">
+                    <i class="fas fa-file-signature" style="color:#6b7280; opacity:0.5;"></i>
+                    <p>No hay cartas de término pendientes.</p>
                 </div>
             </div>
         </section>
+
     </div>
 
+    <!-- ════════════════════════════════════════
+         MODAL: REGISTRAR ALUMNO
+         ════════════════════════════════════════ -->
     <div class="modal-overlay" *ngIf="mostrarFormularioRegistro">
         <div class="modal-container">
             <div class="modal-header">
@@ -199,4 +242,164 @@
             </div>
         </div>
     </div>
+
+    <!-- ════════════════════════════════════════
+         MODAL: ENVIAR CARTA DE TÉRMINO
+         ════════════════════════════════════════ -->
+    <div class="modal-overlay" *ngIf="mostrarModalCarta" style="z-index:9999;">
+        <div class="modal-container" style="max-width:500px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#92400e,#d97706); color:white;">
+                <div class="header-info">
+                    <h3 style="color:white;">
+                        <i class="fas fa-file-contract me-2"></i>Enviar Carta de Término
+                    </h3>
+                    <p style="color:#fef3c7;">
+                        Alumno: <strong>{{ itemCartaActual?.nombre_completo }}</strong>
+                    </p>
+                </div>
+                <button class="btn-close" (click)="cerrarModalCarta()"
+                    style="background:rgba(255,255,255,0.2); color:white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-building me-1"></i>
+                        Nombre de la Dependencia donde realizó el S.S.
+                    </label>
+                    <input type="text" [(ngModel)]="formCarta.nombre_dependencia"
+                        placeholder="Ej: COORDINADORA DE ESTUDIANTES BECARIOS..."
+                        class="form-control">
+                    <small style="color:#6b7280;">Si se deja en blanco, aparecerá como línea en blanco en la carta.</small>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-clock me-1"></i>
+                        Total de Horas Completadas
+                    </label>
+                    <input type="number" [(ngModel)]="formCarta.horas" min="1" max="9999"
+                        class="form-control">
+                </div>
+
+                <!-- Vista previa de datos -->
+                <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:14px; margin-top:12px;">
+                    <p style="font-size:12px; color:#78350f; font-weight:700; margin-bottom:8px;">
+                        <i class="fas fa-eye me-1"></i>Vista previa de la carta:
+                    </p>
+                    <p style="font-size:11px; color:#374151; line-height:1.6; margin:0;">
+                        El C. <strong>{{ itemCartaActual?.nombre_completo | uppercase }}</strong>,
+                        con número de control <strong>{{ itemCartaActual?.numero_control }}</strong>
+                        realizó su Servicio Social en <strong>{{ formCarta.nombre_dependencia || '(dependencia pendiente)' }}</strong>
+                        cubriendo un total de <strong>{{ formCarta.horas }} horas</strong>,
+                        con un nivel de desempeño <strong>EXCELENTE</strong>.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" (click)="cerrarModalCarta()">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <div class="main-actions">
+                    <button style="background:#d97706; color:white; border:none; padding:10px 24px; border-radius:8px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px;"
+                        (click)="confirmarEnviarCarta()">
+                        <i class="fas fa-paper-plane"></i>
+                        Confirmar y Enviar Carta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         MODAL: ACTUALIZAR LOGOS INSTITUCIONALES
+         ════════════════════════════════════════ -->
+    <div class="modal-overlay" *ngIf="mostrarModalLogos" style="z-index:9999;">
+        <div class="modal-container" style="max-width:560px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#1e3a5f,#3b82f6); color:white;">
+                <div class="header-info">
+                    <h3 style="color:white;">
+                        <i class="fas fa-images me-2"></i>Actualizar Logos Institucionales
+                    </h3>
+                    <p style="color:#bfdbfe;">
+                        Sube las nuevas imágenes de encabezado y/o pie de página para la carta de término.
+                    </p>
+                </div>
+                <button class="btn-close" (click)="cerrarModalLogos()"
+                    style="background:rgba(255,255,255,0.2); color:white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- ENCABEZADO -->
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-arrow-up me-1" style="color:#3b82f6;"></i>
+                        Banner de Encabezado
+                    </label>
+                    <div class="logo-upload-area" (click)="headerFileInput.click()"
+                        style="border:2px dashed #d1d5db; border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:all 0.2s; background:#f9fafb;"
+                        (dragover)="$event.preventDefault()" (drop)="onDropHeader($event)">
+                        <img *ngIf="headerPreview" [src]="headerPreview"
+                            style="max-width:100%; max-height:80px; margin-bottom:10px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                        <div *ngIf="!headerPreview" style="color:#9ca3af;">
+                            <i class="fas fa-cloud-upload-alt" style="font-size:28px; margin-bottom:8px; display:block;"></i>
+                            <span style="font-size:13px;">Arrastra o haz clic para seleccionar</span><br>
+                            <small style="font-size:11px;">PNG o JPG · Máximo 5MB</small>
+                        </div>
+                        <input #headerFileInput type="file" accept="image/png,image/jpeg"
+                            (change)="onHeaderSelected($event)" style="display:none;">
+                    </div>
+                    <small *ngIf="headerFile" style="color:#10b981; font-weight:600; margin-top:6px; display:block;">
+                        <i class="fas fa-check-circle me-1"></i>{{ headerFile.name }}
+                    </small>
+                </div>
+
+                <!-- PIE DE PÁGINA -->
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-arrow-down me-1" style="color:#3b82f6;"></i>
+                        Banner de Pie de Página
+                    </label>
+                    <div class="logo-upload-area" (click)="footerFileInput.click()"
+                        style="border:2px dashed #d1d5db; border-radius:12px; padding:20px; text-align:center; cursor:pointer; transition:all 0.2s; background:#f9fafb;"
+                        (dragover)="$event.preventDefault()" (drop)="onDropFooter($event)">
+                        <img *ngIf="footerPreview" [src]="footerPreview"
+                            style="max-width:100%; max-height:80px; margin-bottom:10px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                        <div *ngIf="!footerPreview" style="color:#9ca3af;">
+                            <i class="fas fa-cloud-upload-alt" style="font-size:28px; margin-bottom:8px; display:block;"></i>
+                            <span style="font-size:13px;">Arrastra o haz clic para seleccionar</span><br>
+                            <small style="font-size:11px;">PNG o JPG · Máximo 5MB</small>
+                        </div>
+                        <input #footerFileInput type="file" accept="image/png,image/jpeg"
+                            (change)="onFooterSelected($event)" style="display:none;">
+                    </div>
+                    <small *ngIf="footerFile" style="color:#10b981; font-weight:600; margin-top:6px; display:block;">
+                        <i class="fas fa-check-circle me-1"></i>{{ footerFile.name }}
+                    </small>
+                </div>
+
+                <!-- AVISO -->
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:12px 14px; margin-top:8px;">
+                    <p style="font-size:11px; color:#1e40af; margin:0; line-height:1.5;">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Las imágenes anteriores se guardarán automáticamente como respaldo.
+                        Las nuevas cartas de término generadas usarán los logos actualizados.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" (click)="cerrarModalLogos()">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <div class="main-actions">
+                    <button [disabled]="!headerFile && !footerFile || subiendoLogos"
+                        style="background:#3b82f6; color:white; border:none; padding:10px 24px; border-radius:8px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; opacity:1; transition:opacity 0.2s;"
+                        [style.opacity]="(!headerFile && !footerFile) || subiendoLogos ? '0.5' : '1'"
+                        [style.cursor]="(!headerFile && !footerFile) || subiendoLogos ? 'not-allowed' : 'pointer'"
+                        (click)="confirmarActualizarLogos()">
+                        <i [class]="subiendoLogos ? 'fas fa-spinner fa-spin' : 'fas fa-upload'"></i>
+                        {{ subiendoLogos ? 'Subiendo...' : 'Actualizar Logos' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

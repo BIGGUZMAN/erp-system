@@ -21,8 +21,12 @@ class ServicioReporte extends Model
         'comentarios_admin'
     ];
 
+    /**
+     * Relación con el Usuario.
+     * usuario_id almacena el numero_control del alumno.
+     */
     public function usuario()
     {
-        return $this->belongsTo(Usuario::class, 'usuario_id', 'id_usuario');
+        return $this->belongsTo(Usuario::class, 'usuario_id', 'numero_control');
     }
 }
