@@ -127,9 +127,9 @@
                 </div>
             </div>
 
-            <app-seccion-ingles [hidden]="seccionActiva !== 'ingles'"></app-seccion-ingles>
-            <app-seccion-servicio [hidden]="seccionActiva !== 'servicio'"></app-seccion-servicio>
-            <app-seccion-residencias [hidden]="seccionActiva !== 'residencias'"></app-seccion-residencias>
+            <app-seccion-ingles *ngIf="seccionActiva === 'ingles'"></app-seccion-ingles>
+            <app-seccion-servicio *ngIf="seccionActiva === 'servicio'"></app-seccion-servicio>
+            <app-seccion-residencias *ngIf="seccionActiva === 'residencias'"></app-seccion-residencias>
 
         </div>
     </main>

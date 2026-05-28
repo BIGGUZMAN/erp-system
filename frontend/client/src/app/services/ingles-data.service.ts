@@ -37,6 +37,15 @@ export class InglesService {
         );
     }
 
+    buscarHistorial(nc: string): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/buscar-historial/${nc}`).pipe(
+            catchError(error => {
+                console.error('Error al buscar historial:', error);
+                return of(null);
+            })
+        );
+    }
+
     getCarreras(): Observable<any[]> {
         return this.http.get<any>(`${this.generalApiUrl}/carreras`).pipe(
             map(res => {

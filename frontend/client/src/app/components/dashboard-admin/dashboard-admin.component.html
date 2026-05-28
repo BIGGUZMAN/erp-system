@@ -4,16 +4,36 @@
             <h1>Panel de Administración</h1>
             <p>Gestión de Servicio Social · Periodo académico 2026-B</p>
         </div>
-        <div class="action-buttons">
+        <div class="action-buttons" style="display:flex; gap:10px; align-items:center;">
             <button class="btn-secondary" (click)="abrirModalLogos()" style="display:flex; align-items:center; gap:8px;">
                 <i class="fas fa-images"></i> Actualizar Logos
             </button>
-            <button class="btn-secondary"><i class="fas fa-building"></i> Nueva Empresa</button>
             <button class="btn-primary" (click)="abrirModalRegistro()">
                 <i class="fas fa-user-plus"></i> Registrar Alumno
             </button>
+            <button class="btn-logout" (click)="cerrarSesion()" style="background:#fee2e2; color:#b91c1c; border:none; padding:10px 18px; border-radius:8px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all 0.2s;" onmouseover="this.style.background='#fca5a5'" onmouseout="this.style.background='#fee2e2'">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
         </div>
     </header>
+
+    <!-- TABS DE NAVEGACIÓN -->
+    <div class="dashboard-tabs" style="display: flex; gap: 16px; margin: 10px 0 25px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+        <button class="tab-btn" (click)="cambiarTab('validaciones')"
+            style="background: none; border: none; padding: 10px 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 15px; transition: all 0.2s;"
+            [style.color]="activeTab === 'validaciones' ? '#3b82f6' : '#6b7280'"
+            [style.border-bottom]="activeTab === 'validaciones' ? '3px solid #3b82f6' : 'none'"
+            [style.margin-bottom]="'-10px'">
+            <i class="fas fa-tasks"></i> Validaciones Pendientes
+        </button>
+        <button class="tab-btn" (click)="cambiarTab('convenios')"
+            style="background: none; border: none; padding: 10px 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 15px; transition: all 0.2s;"
+            [style.color]="activeTab === 'convenios' ? '#3b82f6' : '#6b7280'"
+            [style.border-bottom]="activeTab === 'convenios' ? '3px solid #3b82f6' : 'none'"
+            [style.margin-bottom]="'-10px'">
+            <i class="fas fa-building"></i> Convenios con Empresas
+        </button>
+    </div>
 
     <!-- MÉTRICAS -->
     <section class="metrics-grid">
@@ -56,7 +76,7 @@
     </section>
 
     <!-- SECCIONES DE GESTIÓN -->
-    <div class="admin-sections-grid">
+    <div class="admin-sections-grid" *ngIf="activeTab === 'validaciones'">
 
         <!-- ═══════════════════════════════
              1. POR VALIDAR
@@ -198,6 +218,140 @@
 
     </div>
 
+    <!-- ═══════════════════════════════
+         MÓDULO DE CONVENIOS CON EMPRESAS
+         ═══════════════════════════════ -->
+    <div *ngIf="activeTab === 'convenios'" class="convenios-section" style="margin-top:20px; animation: modalSlide 0.3s ease-out;">
+        <div class="validation-section" style="padding: 30px; border-radius: var(--radius-lg); background: white; box-shadow: var(--shadow-sm);">
+            
+            <!-- Barra de Filtros y Búsqueda -->
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:25px; flex-wrap:wrap;">
+                <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:300px;">
+                    <div style="position:relative; width:100%;">
+                        <input type="text" [(ngModel)]="searchQuery" (input)="filtrarEmpresas()"
+                            placeholder="Buscar por Empresa, RFC, Representante o Contacto..."
+                            class="form-control" style="padding-left:40px; margin-bottom:0;">
+                        <i class="fas fa-search" style="position:absolute; left:15px; top:50%; transform:translateY(-50%); color:#9ca3af;"></i>
+                    </div>
+                </div>
+                
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <select [(ngModel)]="filterTipoConvenio" (change)="filtrarEmpresas()" class="form-control" style="width:180px; margin-bottom:0; cursor:pointer;">
+                        <option value="">Todos los Convenios</option>
+                        <option value="Servicio Social">Servicio Social</option>
+                        <option value="Residencias">Residencias</option>
+                        <option value="Colaboración">Colaboración</option>
+                    </select>
+
+                    <select [(ngModel)]="filterEstatus" (change)="filtrarEmpresas()" class="form-control" style="width:180px; margin-bottom:0; cursor:pointer;">
+                        <option value="">Todos los Estatus</option>
+                        <option value="Vigente">Vigente</option>
+                        <option value="Próximo a vencer">Próximo a vencer</option>
+                        <option value="Vencido">Vencido</option>
+                    </select>
+
+                    <button class="btn-primary" (click)="abrirModalEmpresa()" style="padding:10px 20px; height:45px; border-radius:10px; font-weight:600; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-plus"></i> Nueva Empresa
+                    </button>
+                </div>
+            </div>
+
+            <!-- Banner de error de empresas -->
+            <div *ngIf="errorEmpresas" class="error-banner" style="background:#fee2e2; border:1px solid #fca5a5; border-radius:12px; padding:20px; margin-bottom:25px; display:flex; align-items:center; justify-content:space-between; gap:16px; animation: modalSlide 0.3s ease-out;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <i class="fas fa-exclamation-triangle" style="color:#dc2626; font-size:24px;"></i>
+                    <div>
+                        <h4 style="color:#9b1c1c; margin:0; font-weight:700;">Error al cargar Convenios</h4>
+                        <p style="color:#7f1d1d; margin:5px 0 0; font-size:13px;">{{ errorEmpresas }}</p>
+                    </div>
+                </div>
+                <button class="btn-primary" (click)="cargarEmpresas()" style="background:#dc2626; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; white-space:nowrap;">
+                    <i class="fas fa-redo"></i> Reintentar
+                </button>
+            </div>
+
+            <!-- Listado en Tabla -->
+            <div *ngIf="!errorEmpresas" style="overflow-x:auto; border: 1px solid #e5e7eb; border-radius:12px;">
+                <table style="width:100%; border-collapse:collapse; text-align:left; font-size:14px;">
+                    <thead>
+                        <tr style="background:#f9fafb; border-bottom:1px solid #e5e7eb; color:#4b5563; font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:0.5px;">
+                            <th style="padding:16px 20px;"># Convenio</th>
+                            <th style="padding:16px 20px;">Empresa</th>
+                            <th style="padding:16px 20px;">RFC</th>
+                            <th style="padding:16px 20px;">Tipo Convenio</th>
+                            <th style="padding:16px 20px;">Estatus</th>
+                            <th style="padding:16px 20px;">Vigencia</th>
+                            <th style="padding:16px 20px;">Carreras</th>
+                            <th style="padding:16px 20px; text-align:right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody style="color:#374151;">
+                        <tr *ngFor="let emp of empresasList" style="border-bottom:1px solid #f3f4f6; transition:background 0.2s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                            <td style="padding:16px 20px; font-weight:700; color:#111827;">
+                                {{ emp.id_empresa }}
+                            </td>
+                            <td style="padding:16px 20px;">
+                                <div style="font-weight:700; color:#0a1d43;">{{ emp.empresa }}</div>
+                                <div style="font-size:12px; color:#6b7280; margin-top:2px;">{{ emp.representante || 'Sin representante' }}</div>
+                            </td>
+                            <td style="padding:16px 20px; font-family:monospace; font-weight:600; color:#4b5563;">
+                                {{ emp.rfc || '-' }}
+                            </td>
+                            <td style="padding:16px 20px; font-weight:600;">
+                                <span style="font-size:12px; color:#2563eb;">{{ emp.tipo_convenio }}</span>
+                            </td>
+                            <td style="padding:16px 20px;">
+                                <span class="badge" style="padding:5px 10px; border-radius:999px; font-size:11px; font-weight:700; display:inline-block;"
+                                    [style.background]="emp.estatus === 'Vigente' ? '#def7ec' : emp.estatus === 'Próximo a vencer' ? '#fef3c7' : '#fde8e8'"
+                                    [style.color]="emp.estatus === 'Vigente' ? '#03543f' : emp.estatus === 'Próximo a vencer' ? '#92400e' : '#9b1c1c'">
+                                    {{ emp.estatus }}
+                                </span>
+                            </td>
+                            <td style="padding:16px 20px;">
+                                <div style="font-weight:600;">{{ emp.fecha_termino ? (emp.fecha_termino | date:'dd/MM/yyyy') : 'Indefinida' }}</div>
+                                <div style="font-size:11px; color:#6b7280; margin-top:1px;">Firma: {{ emp.fecha_firma ? (emp.fecha_firma | date:'dd/MM/yyyy') : '-' }}</div>
+                            </td>
+                            <td style="padding:16px 20px;">
+                                <div style="display:flex; gap:4px; flex-wrap:wrap; max-width:200px;">
+                                    <span *ngIf="emp.igem" style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700;">IGEM</span>
+                                    <span *ngIf="emp.itics" style="background:#f3e8ff; color:#6b21a8; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700;">ITICS</span>
+                                    <span *ngIf="emp.ilog" style="background:#ecfdf5; color:#047857; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700;">ILOG</span>
+                                    <span *ngIf="emp.ind" style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700;">IND</span>
+                                    <span *ngIf="emp.idam" style="background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700;">IDAM</span>
+                                    <span *ngIf="emp.ife" style="background:#fce7f3; color:#be185d; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700;">IFE</span>
+                                    <span *ngIf="!emp.igem && !emp.itics && !emp.ilog && !emp.ind && !emp.idam && !emp.ife" style="color:#9ca3af; font-size:11px;">Ninguna</span>
+                                </div>
+                            </td>
+                            <td style="padding:16px 20px; text-align:right;">
+                                <div style="display:flex; justify-content:flex-end; gap:8px;">
+                                    <button (click)="abrirModalEmpresa(emp)" title="Editar" style="background:#f3f4f6; border:none; padding:8px; border-radius:8px; cursor:pointer; color:#4b5563; transition:all 0.2s;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button (click)="abrirModalRenovacion(emp)" title="Renovar vigencia" style="background:#fffbeb; border:none; padding:8px; border-radius:8px; cursor:pointer; color:#b45309; transition:all 0.2s;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='#fffbeb'">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <button (click)="abrirModalHistorial(emp)" title="Historial de renovaciones" style="background:#f5f3ff; border:none; padding:8px; border-radius:8px; cursor:pointer; color:#6b21a8; transition:all 0.2s;" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f5f3ff'">
+                                        <i class="fas fa-history"></i>
+                                    </button>
+                                    <button (click)="eliminarEmpresa(emp)" title="Eliminar" style="background:#fee2e2; border:none; padding:8px; border-radius:8px; cursor:pointer; color:#9b1c1c; transition:all 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="empresasList.length === 0">
+                            <td colspan="8" style="padding:40px; text-align:center; color:#6b7280;">
+                                <i class="fas fa-building" style="font-size:36px; color:#d1d5db; margin-bottom:12px; display:block;"></i>
+                                No se encontraron empresas registradas con los filtros seleccionados.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
     <!-- ════════════════════════════════════════
          MODAL: REGISTRAR ALUMNO
          ════════════════════════════════════════ -->
@@ -279,6 +433,17 @@
                     <input type="number" [(ngModel)]="formCarta.horas" min="1" max="9999"
                         class="form-control">
                 </div>
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-hashtag me-1"></i>
+                        Número de Folio (4 dígitos)
+                    </label>
+                    <input type="text" [(ngModel)]="formCarta.folio_num"
+                        placeholder="Ej: 0840"
+                        class="form-control"
+                        maxlength="4">
+                    <small style="color:#6b7280;">Número secuencial para el folio oficial (ej: DGTV/ITGAM/<strong>{{ formCarta.folio_num || '0000' }}</strong>/{{ anioActual }}).</small>
+                </div>
 
                 <!-- Vista previa de datos -->
                 <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:14px; margin-top:12px;">
@@ -286,6 +451,7 @@
                         <i class="fas fa-eye me-1"></i>Vista previa de la carta:
                     </p>
                     <p style="font-size:11px; color:#374151; line-height:1.6; margin:0;">
+                        Folio: <strong>DGTV/ITGAM/{{ formCarta.folio_num || '0000' }}/{{ anioActual }}</strong><br>
                         El C. <strong>{{ itemCartaActual?.nombre_completo | uppercase }}</strong>,
                         con número de control <strong>{{ itemCartaActual?.numero_control }}</strong>
                         realizó su Servicio Social en <strong>{{ formCarta.nombre_dependencia || '(dependencia pendiente)' }}</strong>
@@ -398,6 +564,316 @@
                         {{ subiendoLogos ? 'Subiendo...' : 'Actualizar Logos' }}
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         MODAL: REGISTRAR / EDITAR EMPRESA
+         ════════════════════════════════════════ -->
+    <div class="modal-overlay" *ngIf="mostrarModalEmpresa" style="z-index:9999;">
+        <div class="modal-container modal-xl" style="max-height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header" style="background: linear-gradient(135deg,#0a1d43,#2563eb); color: white;">
+                <div class="header-info">
+                    <h3 style="color: white;">
+                        <i class="fas fa-building me-2"></i>
+                        {{ editandoEmpresa ? 'Editar Empresa y Convenio' : 'Registrar Empresa y Convenio' }}
+                    </h3>
+                    <p style="color: #bfdbfe;">
+                        {{ editandoEmpresa ? 'Edita los datos del convenio #' + empresaIdEnEdicion : 'Crea un nuevo convenio con numeración autoincremental en la base de datos' }}
+                    </p>
+                </div>
+                <button class="btn-close" (click)="cerrarModalEmpresa()" style="color: white; opacity: 0.8;">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="overflow-y: auto; flex: 1; padding: 25px 35px;">
+                
+                <!-- Sección 1: Datos Generales -->
+                <div style="margin-bottom:25px; border-bottom:1px solid #e5e7eb; padding-bottom:15px;">
+                    <h4 style="color:#0a1d43; font-size:15px; font-weight:700; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        <span style="background:#e0f2fe; color:#0369a1; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">1</span>
+                        Datos Generales de la Empresa
+                    </h4>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px;">
+                        <div class="form-group">
+                            <label>Nombre de la Empresa *</label>
+                            <input type="text" [(ngModel)]="formEmpresa.empresa" placeholder="Ej: Google México S.A. de C.V." class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>RFC (Opcional)</label>
+                            <input type="text" [(ngModel)]="formEmpresa.rfc" placeholder="Ej: GOOG123456XX7" class="form-control" style="font-family:monospace; text-transform:uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Empresa *</label>
+                            <select [(ngModel)]="formEmpresa.tipo_empresa" class="form-control">
+                                <option value="Privada">Privada</option>
+                                <option value="Pública">Pública</option>
+                                <option value="Social">Social</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Año de Registro *</label>
+                            <input type="number" [(ngModel)]="formEmpresa.anio" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:8px;">
+                        <label>Dirección Física</label>
+                        <input type="text" [(ngModel)]="formEmpresa.direccion" placeholder="Calle, Número, Colonia, C.P., Ciudad" class="form-control">
+                    </div>
+                </div>
+
+                <!-- Sección 2: Detalles del Convenio -->
+                <div style="margin-bottom:25px; border-bottom:1px solid #e5e7eb; padding-bottom:15px;">
+                    <h4 style="color:#0a1d43; font-size:15px; font-weight:700; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        <span style="background:#e0f2fe; color:#0369a1; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">2</span>
+                        Información del Convenio
+                    </h4>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px;">
+                        <div class="form-group">
+                            <label>Tipo de Convenio *</label>
+                            <select [(ngModel)]="formEmpresa.tipo_convenio" class="form-control">
+                                <option value="Servicio Social">Servicio Social</option>
+                                <option value="Residencias">Residencias</option>
+                                <option value="Colaboración">Colaboración</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de Firma</label>
+                            <input type="date" [(ngModel)]="formEmpresa.fecha_firma" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Vigencia (en Años) *</label>
+                            <input type="number" [(ngModel)]="formEmpresa.vigencia" min="0" max="99" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de Término (Opcional)</label>
+                            <input type="date" [(ngModel)]="formEmpresa.fecha_termino" class="form-control">
+                            <small style="color:#6b7280; font-size:11px;">Si se deja vacía, se auto-calculará Firma + Vigencia.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Convenio físico archivado?</label>
+                            <select [(ngModel)]="formEmpresa.convenio_fisico" class="form-control">
+                                <option value="Sí">Sí</option>
+                                <option value="No">No</option>
+                                <option value="En trámite">En trámite</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 3: Representante y Contacto -->
+                <div style="margin-bottom:25px; border-bottom:1px solid #e5e7eb; padding-bottom:15px;">
+                    <h4 style="color:#0a1d43; font-size:15px; font-weight:700; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        <span style="background:#e0f2fe; color:#0369a1; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">3</span>
+                        Representación y Contacto Directo
+                    </h4>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px;">
+                        <div class="form-group">
+                            <label>Representante Legal</label>
+                            <input type="text" [(ngModel)]="formEmpresa.representante" placeholder="Nombre completo del firmante" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Cargo del Representante</label>
+                            <input type="text" [(ngModel)]="formEmpresa.cargo" placeholder="Ej: Director General / Representante Legal" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Contacto Administrativo (Enlace)</label>
+                            <input type="text" [(ngModel)]="formEmpresa.contacto" placeholder="Nombre del enlace operativo" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono de Contacto</label>
+                            <input type="text" [(ngModel)]="formEmpresa.telefono" placeholder="Ej: 55-1234-5678" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico</label>
+                            <input type="email" [(ngModel)]="formEmpresa.correo" placeholder="Ej: enlace@empresa.com" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 4: Carreras Beneficiadas -->
+                <div style="margin-bottom:25px; border-bottom:1px solid #e5e7eb; padding-bottom:15px;">
+                    <h4 style="color:#0a1d43; font-size:15px; font-weight:700; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        <span style="background:#e0f2fe; color:#0369a1; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">4</span>
+                        Carreras Beneficiadas en el Convenio
+                    </h4>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; background:#f9fafb; padding:18px; border-radius:12px; border:1px solid #e5e7eb;">
+                        <div style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chk_igem" [(ngModel)]="formEmpresa.igem" style="width:18px; height:18px; cursor:pointer;">
+                            <label for="chk_igem" style="margin-bottom:0; cursor:pointer; font-weight:600;">IGEM - Ingeniería en Gestión Empresarial</label>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chk_itics" [(ngModel)]="formEmpresa.itics" style="width:18px; height:18px; cursor:pointer;">
+                            <label for="chk_itics" style="margin-bottom:0; cursor:pointer; font-weight:600;">ITICS - Ingeniería en Tecnologías de la Info.</label>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chk_ilog" [(ngModel)]="formEmpresa.ilog" style="width:18px; height:18px; cursor:pointer;">
+                            <label for="chk_ilog" style="margin-bottom:0; cursor:pointer; font-weight:600;">ILOG - Ingeniería en Logística</label>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chk_ind" [(ngModel)]="formEmpresa.ind" style="width:18px; height:18px; cursor:pointer;">
+                            <label for="chk_ind" style="margin-bottom:0; cursor:pointer; font-weight:600;">IND - Ingeniería Industrial</label>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chk_idam" [(ngModel)]="formEmpresa.idam" style="width:18px; height:18px; cursor:pointer;">
+                            <label for="chk_idam" style="margin-bottom:0; cursor:pointer; font-weight:600;">IDAM - Ingeniería Ambiental</label>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chk_ife" [(ngModel)]="formEmpresa.ife" style="width:18px; height:18px; cursor:pointer;">
+                            <label for="chk_ife" style="margin-bottom:0; cursor:pointer; font-weight:600;">IFE - Ingeniería Ferroviaria</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 5: Seguimiento -->
+                <div>
+                    <h4 style="color:#0a1d43; font-size:15px; font-weight:700; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        <span style="background:#e0f2fe; color:#0369a1; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">5</span>
+                        Seguimiento y Comentarios
+                    </h4>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label>Proyectos / Programas Asociados</label>
+                            <textarea [(ngModel)]="formEmpresa.proyectos" rows="3" placeholder="Describe los programas o proyectos que los alumnos realizarán en la empresa..." class="form-control" style="resize:vertical;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Comentarios y Observaciones</label>
+                            <textarea [(ngModel)]="formEmpresa.comentarios" rows="3" placeholder="Añade notas adicionales sobre el seguimiento del convenio..." class="form-control" style="resize:vertical;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="modal-footer" style="border-top: 1px solid #f3f4f6;">
+                <button class="btn-secondary" (click)="cerrarModalEmpresa()">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <div class="main-actions">
+                    <button class="btn-primary" (click)="guardarEmpresa()" style="background:#2563eb;">
+                        <i class="fas fa-save me-1"></i>{{ editandoEmpresa ? 'Actualizar Convenio' : 'Guardar Convenio' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         MODAL: RENOVAR VIGENCIA
+         ════════════════════════════════════════ -->
+    <div class="modal-overlay" *ngIf="mostrarModalRenovacion" style="z-index:9999;">
+        <div class="modal-container" style="max-width:500px;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#b45309,#d97706); color:white;">
+                <div class="header-info">
+                    <h3 style="color:white;">
+                        <i class="fas fa-sync-alt me-2"></i>Renovar Vigencia de Convenio
+                    </h3>
+                    <p style="color:#fef3c7;">
+                        Empresa: <strong>{{ empresaNombreRenovacion }}</strong>
+                    </p>
+                </div>
+                <button class="btn-close" (click)="cerrarModalRenovacion()" style="color:white; opacity:0.8;">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nueva Fecha de Firma *</label>
+                    <input type="date" [(ngModel)]="formRenovacion.nueva_fecha_firma" (change)="calcularNuevaFechaTermino()" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Nueva Vigencia (en Años) *</label>
+                    <input type="number" [(ngModel)]="formRenovacion.nueva_vigencia" min="1" (input)="calcularNuevaFechaTermino()" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Nueva Fecha de Término (Auto-calculada)</label>
+                    <input type="date" [(ngModel)]="formRenovacion.nueva_fecha_termino" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Comentarios / Notas de la Renovación</label>
+                    <textarea [(ngModel)]="formRenovacion.comentarios" rows="3" placeholder="Ej: Se firma adendum para ampliar vigencia por buen desempeño de los alumnos." class="form-control" style="resize:vertical;"></textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn-secondary" (click)="cerrarModalRenovacion()">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <div class="main-actions">
+                    <button class="btn-primary" (click)="confirmarRenovacion()" style="background:#d97706;">
+                        <i class="fas fa-check me-1"></i>Confirmar Renovación
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         MODAL: HISTORIAL DE RENOVACIONES
+         ════════════════════════════════════════ -->
+    <div class="modal-overlay" *ngIf="mostrarModalHistorial" style="z-index:9999;">
+        <div class="modal-container" style="max-width:560px; max-height:85vh; display:flex; flex-direction:column;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#5b21b6,#7c3aed); color:white;">
+                <div class="header-info">
+                    <h3 style="color:white;">
+                        <i class="fas fa-history me-2"></i>Historial de Renovaciones
+                    </h3>
+                    <p style="color:#ddd6fe;">
+                        Empresa: <strong>{{ empresaNombreHistorial }}</strong>
+                    </p>
+                </div>
+                <button class="btn-close" (click)="cerrarModalHistorial()" style="color:white; opacity:0.8;">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="overflow-y:auto; flex:1; padding:25px 35px;">
+                <div *ngIf="historialRenovaciones.length === 0" style="text-align:center; padding:30px; color:#6b7280;">
+                    <i class="fas fa-clock" style="font-size:36px; color:#d1d5db; margin-bottom:10px; display:block;"></i>
+                    Este convenio no registra renovaciones previas en el sistema.
+                </div>
+                
+                <div *ngIf="historialRenovaciones.length > 0" style="position:relative; padding-left:25px; border-left:2px solid #e5e7eb; margin-left:10px;">
+                    <div *ngFor="let ren of historialRenovaciones; let i = index" style="position:relative; margin-bottom:25px;">
+                        
+                        <!-- Puntero Timeline -->
+                        <span style="position:absolute; left:-32px; top:0; background:#7c3aed; color:white; width:14px; height:14px; border-radius:50%; border:3px solid white; box-shadow:0 0 0 2px #7c3aed;"></span>
+                        
+                        <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:10px; padding:15px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <span style="font-weight:700; color:#5b21b6; font-size:12px; text-transform:uppercase;">
+                                    Renovación #{{ historialRenovaciones.length - i }}
+                                </span>
+                                <small style="color:#6b7280; font-weight:600;">
+                                    {{ ren.created_at | date:'dd/MM/yyyy HH:mm' }}
+                                </small>
+                            </div>
+                            
+                            <div style="font-size:13px; color:#374151; line-height:1.5;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed #e5e7eb;">
+                                    <div>
+                                        <div style="font-size:11px; color:#6b7280; text-transform:uppercase; font-weight:700;">Valores Anteriores</div>
+                                        <div style="font-weight:600;">Firma: {{ ren.fecha_firma_anterior | date:'dd/MM/yyyy' }}</div>
+                                        <div style="font-weight:600;">Término: {{ ren.fecha_termino_anterior | date:'dd/MM/yyyy' }}</div>
+                                        <div style="font-weight:600;">Vigencia: {{ ren.vigencia_anterior }} {{ ren.vigencia_anterior === 1 ? 'Año' : 'Años' }}</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:11px; color:#6b7280; text-transform:uppercase; font-weight:700;">Nuevos Valores</div>
+                                        <div style="font-weight:600; color:#10b981;">Firma: {{ ren.nueva_fecha_firma | date:'dd/MM/yyyy' }}</div>
+                                        <div style="font-weight:600; color:#10b981;">Término: {{ ren.nueva_fecha_termino | date:'dd/MM/yyyy' }}</div>
+                                        <div style="font-weight:600; color:#10b981;">Vigencia: {{ ren.nueva_vigencia }} {{ ren.nueva_vigencia === 1 ? 'Año' : 'Años' }}</div>
+                                    </div>
+                                </div>
+                                <div *ngIf="ren.comentarios" style="margin-top:6px; font-style:italic; color:#4b5563; background:white; padding:8px 10px; border-radius:6px; border-left:3px solid #7c3aed;">
+                                    "{{ ren.comentarios }}"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer" style="border-top:1px solid #f3f4f6;">
+                <button class="btn-secondary" (click)="cerrarModalHistorial()">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
             </div>
         </div>
     </div>

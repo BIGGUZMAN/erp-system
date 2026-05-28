@@ -104,6 +104,7 @@ export class ServicioSocialService {
         usuario_id: string;
         nombre_dependencia?: string;
         horas?: number;
+        folio_num?: string;
     }): Observable<any> {
         return this.http.post(`${this.apiUrl}/admin/enviar-carta`, data);
     }
@@ -122,5 +123,33 @@ export class ServicioSocialService {
      */
     actualizarLogos(formData: FormData): Observable<any> {
         return this.http.post(`${this.apiUrl}/admin/actualizar-logos`, formData);
+    }
+
+    // ─────────────────────────────────────────────
+    // MÓDULO DE CONVENIOS CON EMPRESAS
+    // ─────────────────────────────────────────────
+
+    getEmpresas(params?: any): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/admin/empresas`, { params });
+    }
+
+    getEmpresa(id: number): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/admin/empresas/${id}`);
+    }
+
+    crearEmpresa(data: any): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/admin/empresas`, data);
+    }
+
+    actualizarEmpresa(id: number, data: any): Observable<any> {
+        return this.http.put<any>(`${this.apiUrl}/admin/empresas/${id}`, data);
+    }
+
+    eliminarEmpresa(id: number): Observable<any> {
+        return this.http.delete<any>(`${this.apiUrl}/admin/empresas/${id}`);
+    }
+
+    renovarConvenio(id: number, data: any): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/admin/empresas/${id}/renovar`, data);
     }
 }

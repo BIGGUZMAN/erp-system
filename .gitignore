@@ -21,3 +21,10 @@ dist/
 # IDE
 .vscode/
 .idea/
+
+# Backups de base de datos
+*.sql
+backup_*.sql
+
+# Archivos subidos por usuarios (storage)
+backend/storage/app/public/servicio_social/documentos/

@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InglesDashboardController as InglesController;
 use App\Http\Controllers\Api\ServicioSocialController;
 use App\Http\Controllers\Api\DashboardStatsController; 
+use App\Http\Controllers\Api\EmpresaController;
+use App\Http\Controllers\Api\PasswordResetController;
 use App\Models\Carrera;
 
 /*
@@ -17,6 +19,8 @@ use App\Models\Carrera;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/activar-cuenta', [AuthController::class, 'activarCuenta']);
 Route::post('/cambiar-password', [AuthController::class, 'cambiarPassword']);
+Route::post('/recuperar-password/solicitar', [PasswordResetController::class, 'solicitarRecuperacion']);
+Route::post('/recuperar-password/restablecer', [PasswordResetController::class, 'restablecerPassword']);
 Route::get('/carreras', fn() => response()->json(['carreras' => Carrera::all()]));
 
 /*
@@ -54,6 +58,16 @@ Route::prefix('servicio-social')->group(function () {
         Route::post('/desbloquear-reporte',       [ServicioSocialController::class, 'desbloquearReporteAdmin']);
         Route::post('/enviar-carta',              [ServicioSocialController::class, 'enviarCartaTermino']);
         Route::post('/actualizar-logos',          [ServicioSocialController::class, 'actualizarLogos']);
+
+        // Módulo de empresas y convenios
+        Route::prefix('empresas')->group(function () {
+            Route::get('/',             [EmpresaController::class, 'index']);
+            Route::post('/',            [EmpresaController::class, 'store']);
+            Route::get('/{id}',         [EmpresaController::class, 'show']);
+            Route::put('/{id}',         [EmpresaController::class, 'update']);
+            Route::delete('/{id}',      [EmpresaController::class, 'destroy']);
+            Route::post('/{id}/renovar',[EmpresaController::class, 'renovar']);
+        });
     });
 });
 
@@ -68,6 +82,7 @@ Route::prefix('ingles')->group(function () {
     Route::get('/alumno-estado/{usuarioId}',      [InglesController::class, 'getMiEstadoActual']);
     Route::post('/inscribir',                     [InglesController::class, 'inscribir']);
     Route::get('/buscar-alumno/{numero_control}', [InglesController::class, 'buscarAlumno']);
+    Route::get('/buscar-historial/{numero_control}', [InglesController::class, 'buscarHistorial']);
     Route::post('/actualizar-pago/{id}',          [InglesController::class, 'actualizarPago']);
     Route::get('/curso/{nivel_id}/alumnos',       [InglesController::class, 'getAlumnosPorCurso']);
     Route::post('/calificaciones',                [InglesController::class, 'guardarCalificaciones']);

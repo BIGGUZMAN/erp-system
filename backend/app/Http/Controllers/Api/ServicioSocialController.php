@@ -348,10 +348,11 @@ class ServicioSocialController extends Controller
         // --- Ensayos Finales EN_REVISION (para validar) ---
         $ensayosRevision = ServicioDocumento::where('tipo_documento', 'Ensayo Final')
             ->where('estado', 'EN_REVISION')
+            ->with(['usuario'])
             ->get();
 
         foreach ($ensayosRevision as $doc) {
-            $usuario = Usuario::where('numero_control', $doc->usuario_id)->first();
+            $usuario = $doc->usuario;
             if (!$usuario) continue;
             $items[] = [
                 'id_entidad'      => $doc->id,
@@ -367,19 +368,22 @@ class ServicioSocialController extends Controller
         }
 
         // --- Ensayos Finales APROBADOS sin constancia generada (para enviar carta) ---
+        $usuariosConConstancia = ServicioDocumento::where('tipo_documento', 'Constancia de Liberacion')
+            ->pluck('usuario_id')
+            ->toArray();
+
         $ensayosAprobados = ServicioDocumento::where('tipo_documento', 'Ensayo Final')
             ->where('estado', 'APROBADO')
+            ->with(['usuario'])
             ->get();
 
         foreach ($ensayosAprobados as $doc) {
-            // Verificar que no tenga constancia ya generada
-            $tieneConstancia = ServicioDocumento::where('usuario_id', $doc->usuario_id)
-                ->where('tipo_documento', 'Constancia de Liberacion')
-                ->exists();
+            // Verificar que no tenga constancia ya generada using pre-fetched array
+            if (in_array($doc->usuario_id, $usuariosConConstancia)) {
+                continue;
+            }
 
-            if ($tieneConstancia) continue;
-
-            $usuario = Usuario::where('numero_control', $doc->usuario_id)->first();
+            $usuario = $doc->usuario;
             if (!$usuario) continue;
 
             $items[] = [
@@ -534,6 +538,7 @@ class ServicioSocialController extends Controller
             'usuario_id'        => 'required',
             'nombre_dependencia' => 'nullable|string',
             'horas'             => 'nullable|integer',
+            'folio_num'         => 'nullable|string',
         ]);
 
         $usuarioId = $request->usuario_id;
@@ -562,7 +567,7 @@ class ServicioSocialController extends Controller
         $fechaInicioObj   = $primerReporte ? Carbon::parse($primerReporte->fecha_inicio_periodo) : Carbon::now()->subMonths(6);
         $fechaFinObj      = $tercerReporte  ? Carbon::parse($tercerReporte->fecha_limite)         : Carbon::now();
         $fechaExpedicion  = Carbon::now()->subDays(5);
-        $fechaCarta       = Carbon::now();
+        $fechaCarta       = $fechaFinObj->copy()->addDays(5);
 
         // Datos de la carta
         $nombreAlumno   = strtoupper($alumno->nombre_completo);
@@ -608,8 +613,14 @@ class ServicioSocialController extends Controller
         $headerDataUri = "data:image/png;base64,{$headerBase64}";
         $footerDataUri = "data:image/png;base64,{$footerBase64}";
 
-        // Número de folio (ej: DGTV/ITGAM/7953/2026)
-        $folio = 'DGTV/ITGAM/' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT) . '/' . $anioExp;
+        // Número de folio (ej: DGTV/ITGAM/0840/2026)
+        $folioNum = $request->folio_num;
+        if (empty($folioNum)) {
+            $folioNum = str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        } else {
+            $folioNum = str_pad($folioNum, 4, '0', STR_PAD_LEFT);
+        }
+        $folio = 'DGTV/ITGAM/' . $folioNum . '/' . $anioExp;
 
         // ── HTML OFICIAL DE LA CARTA DE TÉRMINO ──
         $htmlContent = "

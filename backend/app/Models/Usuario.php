@@ -6,6 +6,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany; // Importante para las relaciones
+use App\Notifications\RestablecerPasswordNotification;
 
 class Usuario extends Authenticatable
 {
@@ -65,5 +66,37 @@ public function servicioDocumentos(): HasMany
     public function carrera()
     {
         return $this->belongsTo(Carrera::class, 'carrera_id', 'id_carrera');
+    }
+
+    /**
+     * Obtiene el correo electrónico para la recuperación de contraseña.
+     */
+    public function getEmailForPasswordReset()
+    {
+        return $this->correo;
+    }
+
+    /**
+     * Envía la notificación al canal de correo correspondiente (campo 'correo' en BD).
+     */
+    public function routeNotificationForMail($notification)
+    {
+        return $this->correo;
+    }
+
+    /**
+     * Envía la notificación de restablecimiento de contraseña.
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new RestablecerPasswordNotification($token));
+    }
+
+    /**
+     * Ignora el remember_token ya que la tabla usuarios no tiene esta columna.
+     */
+    public function setRememberToken($value)
+    {
+        // No-op
     }
 }

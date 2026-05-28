@@ -84,6 +84,21 @@ export class SeccionInglesComponent implements OnInit {
   }
 
   /**
+   * Devuelve el nombre del nivel formateado con número de 2 dígitos.
+   * Ej: "Básico 1" -> "Básico 01", "Intermedio 2" -> "Intermedio 02"
+   */
+  getNivelLabel(item: any): string {
+    const nombre = item.nivel?.nombre as string | undefined;
+    if (nombre) {
+      // Reemplaza el número final por su versión con cero adelante si es de 1 dígito
+      return nombre.replace(/(\d+)$/, (n: string) => n.padStart(2, '0'));
+    }
+    // Fallback: mostrar el número de nivel secuencial (posición en el historial)
+    const index = this.historialIngles.indexOf(item);
+    return String(index + 1).padStart(2, '0');
+  }
+
+  /**
    * Método para descargar el PDF de la boleta
    */
   descargarBoleta(idInscripcion: number) {

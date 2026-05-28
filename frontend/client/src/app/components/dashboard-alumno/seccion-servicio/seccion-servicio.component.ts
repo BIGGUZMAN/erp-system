@@ -43,6 +43,28 @@ export class SeccionServicioComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    // Inicializar documentos con placeholders para renderizado instantáneo
+    const nombresObligatorios = [
+      'Kardex',
+      'Carta de presentacion',
+      'Carta de aceptacion',
+      'Solicitud de servicio social',
+      'Carta compromiso de servicio social',
+      'Asignacion de actividades del servicio social'
+    ];
+    this.documentos = nombresObligatorios.map(nombre => ({
+      nombre,
+      statusValidacion: 'INACTIVO',
+      url_final: null
+    }));
+
+    // Inicializar reportes con placeholders para renderizado instantáneo
+    this.reportes = [
+      { numero_reporte: 1, statusValidacion: 'INACTIVO', tiempoRestante: '— Inactivo', puedeSubir: false },
+      { numero_reporte: 2, statusValidacion: 'INACTIVO', tiempoRestante: '— Inactivo', puedeSubir: false },
+      { numero_reporte: 3, statusValidacion: 'INACTIVO', tiempoRestante: '— Inactivo', puedeSubir: false }
+    ];
+
     const userStr = localStorage.getItem('usuario');
     if (userStr) {
       try {

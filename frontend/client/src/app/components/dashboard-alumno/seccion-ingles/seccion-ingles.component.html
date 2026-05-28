@@ -2,7 +2,7 @@
     <header class="progreso-header">
         <div class="header-info">
             <span class="badge">PROGRESO GLOBAL</span>
-            <h1>Consolidando el Dominio</h1>
+            <h1>Progreso de Inglés</h1>
             <p>Has completado el {{ progresoGlobal }}% de los niveles requeridos para tu titulación.</p>
         </div>
         <div class="header-stats">
@@ -43,7 +43,7 @@
 
                 <div class="card-main-content">
                     <div class="nivel-header">
-                        <span class="nivel-number">{{ item.nivel_id | number:'2.0' }}</span>
+                        <span class="nivel-number">{{ getNivelLabel(item) }}</span>
                         <div class="nivel-status-icon">
                             <span *ngIf="item.estado_academico === 'Aprobado'" class="check-icon">✔</span>
                             <span *ngIf="item.estado_academico === 'Cursando'" class="actual-badge">ACTUAL</span>

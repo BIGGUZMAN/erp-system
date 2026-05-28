@@ -51,6 +51,63 @@ class InglesDashboardController extends Controller
         return response()->json(['encontrado' => false], 404);
     }
 
+    // Busca el historial completo de inglés del alumno
+    public function buscarHistorial($numero_control)
+    {
+        $usuario = Usuario::with('carrera')->where('numero_control', $numero_control)->first();
+
+        if (!$usuario) {
+            return response()->json([
+                'encontrado' => false,
+                'message' => 'Alumno no encontrado'
+            ]);
+        }
+
+        // Historial de inglés ordenado por nivel_id
+        $historial = InscripcionIngles::with('nivel')
+            ->where('usuario_id', $usuario->id_usuario)
+            ->orderBy('nivel_id', 'asc')
+            ->get();
+
+        $aprobadosCount = $historial->where('estado_academico', 'Aprobado')->count();
+
+        // Obtener último nivel aprobado
+        $ultimoAprobado = $historial->where('estado_academico', 'Aprobado')->sortByDesc('nivel_id')->first();
+        $ultimoAprobadoNombre = $ultimoAprobado ? $ultimoAprobado->nivel->nombre : 'Ninguno';
+
+        // Nivel en el que se quedó actualmente o cursando
+        $cursandoActualmente = $historial->where('estado_academico', 'Cursando')->first();
+        if ($cursandoActualmente) {
+            $nivelQuedo = $cursandoActualmente->nivel->nombre . ' (Cursando actualmente)';
+            $estatus = 'Activo';
+        } else {
+            if ($aprobadosCount >= 10) {
+                $nivelQuedo = 'Curso Completado';
+                $estatus = 'Completado';
+            } else {
+                $siguienteNivelNumero = $aprobadosCount + 1;
+                // Intentamos buscar el nombre de la base de datos
+                $siguienteNivel = NivelIngles::where('numero', $siguienteNivelNumero)->first();
+                $siguienteNivelNombre = $siguienteNivel ? $siguienteNivel->nombre : 'Nivel ' . $siguienteNivelNumero;
+                $nivelQuedo = $siguienteNivelNombre . ' (Pendiente por cursar)';
+                $estatus = $aprobadosCount > 0 ? 'En Pausa' : 'Inactivo';
+            }
+        }
+
+        return response()->json([
+            'encontrado' => true,
+            'alumno' => [
+                'nombre_completo' => $usuario->nombre_completo,
+                'numero_control' => $usuario->numero_control,
+                'carrera' => $usuario->carrera ? $usuario->carrera->nombre : 'General',
+                'estatus_ingles' => $estatus,
+                'ultimo_nivel_aprobado' => $ultimoAprobadoNombre,
+                'nivel_actual_quedo' => $nivelQuedo
+            ],
+            'historial' => $historial
+        ]);
+    }
+
     public function inscribir(Request $request)
     {
         $request->validate([
@@ -104,11 +161,12 @@ class InglesDashboardController extends Controller
         ]);
     }
 
-    // Se modificó para recibir el parámetro grupo
+    // Se modificó para recibir el parámetro grupo y retornar también el nivel
     public function getAlumnosPorCurso(Request $request, $nivel_id)
     {
         $grupo = $request->query('grupo', 'A'); // Por defecto busca el grupo A
 
+        $nivel = NivelIngles::find($nivel_id);
         $alumnos = InscripcionIngles::with('usuario.carrera')
             ->where('nivel_id', $nivel_id)
             ->where('grupo', $grupo)
@@ -121,7 +179,7 @@ class InglesDashboardController extends Controller
             'porcentaje' => round(($alumnos->where('estado_academico', 'Aprobado')->count() / max(1, $alumnos->count())) * 100, 2)
         ];
 
-        return response()->json(['alumnos' => $alumnos, 'stats' => $stats]);
+        return response()->json(['alumnos' => $alumnos, 'stats' => $stats, 'nivel' => $nivel]);
     }
 
     public function guardarCalificaciones(Request $request)

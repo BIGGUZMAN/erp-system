@@ -2,6 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { InglesService } from '../../services/ingles-data.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 interface Nivel {
   id: number;
@@ -15,7 +17,7 @@ interface Nivel {
 @Component({
   selector: 'app-dashboard-ingles',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard-ingles.component.html',
   styleUrls: ['./dashboard-ingles.component.css']
 })
@@ -29,6 +31,12 @@ export class DashboardInglesComponent implements OnInit {
   tasaAprobacion: number = 0;
 
   cargando: boolean = true;
+
+  // NUEVAS PROPIEDADES PARA EL BUSCADOR DE ALUMNOS
+  searchNC: string = '';
+  alumnoHistorial: any = null;
+  buscando: boolean = false;
+  realizoBusqueda: boolean = false;
 
   constructor(
     private inglesService: InglesService,
@@ -99,5 +107,48 @@ export class DashboardInglesComponent implements OnInit {
 
   irAInscripcion(): void {
     this.router.navigate(['/inscribir-alumno']);
+  }
+
+  buscarAlumno(): void {
+    if (!this.searchNC.trim()) {
+      Swal.fire('Atención', 'Por favor, ingrese un número de control válido.', 'warning');
+      return;
+    }
+
+    this.buscando = true;
+    this.realizoBusqueda = true;
+    this.alumnoHistorial = null;
+
+    this.inglesService.buscarHistorial(this.searchNC.trim()).subscribe({
+      next: (res: any) => {
+        this.buscando = false;
+        if (res && res.encontrado) {
+          this.alumnoHistorial = res;
+        } else {
+          this.alumnoHistorial = null;
+          Swal.fire('No encontrado', res?.message || 'No se encontró ningún alumno con ese número de control.', 'info');
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.buscando = false;
+        console.error('Error al buscar historial:', err);
+        Swal.fire('Error', 'Ocurrió un error al buscar al alumno.', 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  limpiarBuscador(): void {
+    this.searchNC = '';
+    this.alumnoHistorial = null;
+    this.realizoBusqueda = false;
+    this.cdr.detectChanges();
+  }
+
+  cerrarSesion(): void {
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']);
   }
 }

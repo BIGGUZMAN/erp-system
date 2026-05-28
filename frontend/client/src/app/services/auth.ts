@@ -28,4 +28,12 @@ export class AuthService {
   recuperarPassword(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/recuperar-password`, data);
   }
+
+  solicitarRecuperacion(correo: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/recuperar-password/solicitar`, { correo });
+  }
+
+  restablecerPassword(datos: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/recuperar-password/restablecer`, datos);
+  }
 }

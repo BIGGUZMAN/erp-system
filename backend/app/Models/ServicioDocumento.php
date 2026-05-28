@@ -47,7 +47,7 @@ class ServicioDocumento extends Model
      */
     public function usuario()
     {
-        // Especificamos 'usuario_id' como la FK y 'id_usuario' como la PK en la tabla usuarios
-        return $this->belongsTo(Usuario::class, 'usuario_id', 'id_usuario');
+        // Especificamos 'usuario_id' como la FK y 'numero_control' como la PK en la tabla usuarios
+        return $this->belongsTo(Usuario::class, 'usuario_id', 'numero_control');
     }
 }

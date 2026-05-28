@@ -50,9 +50,14 @@ export class CursoDetalleComponent implements OnInit {
     }
 
     getNombreCurso(id: number): string {
-        if (id <= 5) return `Básico ${id}`;
-        if (id >= 6 && id <= 10) return `Intermedio ${id - 5}`;
-        if (id >= 11) return `Avanzado ${id - 10}`;
+        let normalizedId = id;
+        if (id >= 21 && id <= 30) {
+            normalizedId = id - 20;
+        }
+        
+        if (normalizedId <= 5) return `Básico ${normalizedId}`;
+        if (normalizedId >= 6 && normalizedId <= 10) return `Intermedio ${normalizedId - 5}`;
+        if (normalizedId >= 11) return `Avanzado ${normalizedId - 10}`;
         return `Nivel ${id}`;
     }
 
@@ -71,6 +76,14 @@ export class CursoDetalleComponent implements OnInit {
             next: (data: any) => {
                 this.alumnos = data.alumnos || [];
                 this.stats = data.stats || this.stats;
+                
+                // Usar nombre del nivel enviado por backend o calcular fallback
+                if (data.nivel && data.nivel.nombre) {
+                    this.nombreCursoActual = data.nivel.nombre;
+                } else {
+                    this.nombreCursoActual = this.getNombreCurso(this.nivelId);
+                }
+
                 this.aplicarFiltroInicial();
                 this.verificarEstadoGuardado();
                 this.cargando = false;
