@@ -60,9 +60,8 @@ export class DashboardAlumnoComponent implements OnInit {
       if (res) {
         this.resumenIngles.nivel = res.nivel_siguiente;
         this.resumenIngles.avance = res.porcentaje_total;
-        this.cdr.detectChanges();
-        // Data loaded, hide spinner
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
 
