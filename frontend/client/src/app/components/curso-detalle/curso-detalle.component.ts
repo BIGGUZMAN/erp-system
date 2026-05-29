@@ -178,9 +178,23 @@ export class CursoDetalleComponent implements OnInit {
     guardarCalificaciones(): void {
         if (this.alumnosFiltrados.length === 0) return;
 
+        // Validar calificaciones: enteros del 1 al 100
+        for (const alumno of this.alumnosFiltrados) {
+            const notaVal = alumno.calificacion_final;
+            if (notaVal === null || notaVal === undefined || notaVal === '') {
+                Swal.fire('Error de validación', `La calificación de ${alumno.usuario?.nombre_completo || 'el alumno'} es obligatoria y no puede estar vacía.`, 'error');
+                return;
+            }
+            const nota = Number(notaVal);
+            if (isNaN(nota) || !Number.isInteger(nota) || nota < 1 || nota > 100) {
+                Swal.fire('Error de validación', `La calificación de ${alumno.usuario?.nombre_completo || 'el alumno'} (${notaVal}) no es válida. Debe ser un número entero entre 1 y 100 sin decimales.`, 'error');
+                return;
+            }
+        }
+
         const payload = this.alumnosFiltrados.map(a => ({
             id: a.id,
-            calificacion_final: a.calificacion_final
+            calificacion_final: Number(a.calificacion_final)
         }));
 
         this.inglesService.guardarCalificaciones(payload).subscribe({

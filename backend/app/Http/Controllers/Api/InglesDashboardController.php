@@ -187,7 +187,11 @@ class InglesDashboardController extends Controller
         $request->validate([
             'calificaciones' => 'required|array',
             'calificaciones.*.id' => 'required|integer|exists:inscripcion_ingleses,id',
-            'calificaciones.*.calificacion_final' => 'required|numeric|min:0|max:100',
+            'calificaciones.*.calificacion_final' => 'required|integer|between:1,100',
+        ], [
+            'calificaciones.*.calificacion_final.required' => 'La calificación es obligatoria.',
+            'calificaciones.*.calificacion_final.integer' => 'La calificación debe ser un número entero sin decimales.',
+            'calificaciones.*.calificacion_final.between' => 'La calificación debe ser un número entero entre 1 y 100.',
         ]);
 
         try {
