@@ -16,13 +16,6 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-      start_period: 30s
-
   laravel:
     build: ./backend
     container_name: erp_laravel
@@ -37,11 +30,8 @@ services:
     ports:
       - "8000:8000"
 
-    command: php artisan serve --host=0.0.0.0 --port=8000
-
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
 
   angular:
     build:
@@ -63,7 +53,8 @@ services:
       - ./frontend/client:/app
       - /app/node_modules
 
-    command: sh -c "npm install && npx ng serve --host 0.0.0.0 --port 4200"
+    command: npx ng serve --host 0.0.0.0 --port 4200
+
 
     depends_on:
       - laravel
