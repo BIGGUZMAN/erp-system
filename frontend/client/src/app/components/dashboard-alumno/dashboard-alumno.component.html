@@ -25,6 +25,9 @@
     </aside>
 
     <main class="main-wrapper">
+      <div *ngIf="isLoading" class="loading-overlay">
+        <div class="spinner"></div>
+      </div>
         <header class="top-navbar">
             <h3>ITGAM Académico</h3>
             <div class="user-header-info" *ngIf="usuario">

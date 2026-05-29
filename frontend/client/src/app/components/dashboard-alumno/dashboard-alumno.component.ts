@@ -31,6 +31,8 @@ export class DashboardAlumnoComponent implements OnInit {
     nivel: 1,
     avance: 0
   };
+  // Loading indicator for data fetch
+  isLoading: boolean = false;
 
   constructor(
     private router: Router,
@@ -50,23 +52,21 @@ export class DashboardAlumnoComponent implements OnInit {
       return;
     }
 
-    /**
-     * 2. ESCUCHA REACTIVA: 
-     * Nos suscribimos al estado$ del servicio. 
-     * En cuanto la API responda (ID 25 en Network), este bloque se activa solo.
-     */
+    // Show loading spinner while waiting for data
+    this.isLoading = true;
+
+    // Reactive listen
     this.inglesService.estado$.subscribe(res => {
       if (res) {
-        console.log('Dashboard detectó nuevos datos:', res);
         this.resumenIngles.nivel = res.nivel_siguiente;
         this.resumenIngles.avance = res.porcentaje_total;
-
-        // VITAL: Obliga a la interfaz a mostrar "Nivel 1" en lugar de "Nivel ..."
         this.cdr.detectChanges();
+        // Data loaded, hide spinner
+        this.isLoading = false;
       }
     });
 
-    // 3. Disparamos la carga inicial
+    // Trigger initial load
     this.cargarDatosGlobales();
   }
 
