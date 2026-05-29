@@ -55,13 +55,17 @@ export class DashboardAlumnoComponent implements OnInit {
     // Show loading spinner while waiting for data
     this.isLoading = true;
 
-    // Reactive listen
-    this.inglesService.estado$.subscribe(res => {
-      if (res) {
-        this.resumenIngles.nivel = res.nivel_siguiente;
-        this.resumenIngles.avance = res.porcentaje_total;
-        this.isLoading = false;
-        this.cdr.detectChanges();
+    // Reactive listen to state updates
+    this.inglesService.estado$.subscribe({
+      next: (res) => {
+        if (res) {
+          this.resumenIngles.nivel = res.nivel_siguiente;
+          this.resumenIngles.avance = res.porcentaje_total;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        console.error('Error al recibir actualización reactiva de inglés:', err);
       }
     });
 
@@ -77,7 +81,20 @@ export class DashboardAlumnoComponent implements OnInit {
     const id = this.usuario?.id_usuario || this.usuario?.id;
 
     if (id) {
-      this.inglesService.getMiEstadoActual(id).subscribe();
+      this.inglesService.getMiEstadoActual(id).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error al cargar datos globales de inglés:', err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+    } else {
+      this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
