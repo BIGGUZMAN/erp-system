@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { retry } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { ServicioSocialService } from '../../../services/servicio-social.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -46,11 +47,11 @@ export class SeccionServicioComponent implements OnInit, OnDestroy {
     // Inicializar documentos con placeholders para renderizado instantáneo
     const nombresObligatorios = [
       'Kardex',
-      'Carta de presentacion',
-      'Carta de aceptacion',
+      'Carta de presentación',
+      'Carta de aceptación',
       'Solicitud de servicio social',
       'Carta compromiso de servicio social',
-      'Asignacion de actividades del servicio social'
+      'Asignación de actividades del servicio social'
     ];
     this.documentos = nombresObligatorios.map(nombre => ({
       nombre,
@@ -236,15 +237,19 @@ export class SeccionServicioComponent implements OnInit, OnDestroy {
     formData.append('tipo_documento', nombre);
     formData.append('usuario_id', this.usuarioId);
 
-    this.ssService.subirDocumento(formData).subscribe({
-      next: (res: any) => {
-        this.mostrarMensaje(`✅ "${nombre}" subido correctamente.`, 'success');
-        this.cargarEstado();
-      },
-      error: (err: any) => {
-        this.mostrarMensaje(`❌ Error al subir "${nombre}": ${err.error?.message || 'Inténtalo de nuevo.'}`, 'error');
+    this.ssService.subirDocumento(formData).pipe(retry(1)).subscribe({
+        next: (res: any) => {
+          this.mostrarMensaje(`✅ "${nombre}" subido correctamente.`, 'success');
+          this.cargarEstado();
+        },
+        error: (err: any) => {
+          this.mostrarMensaje(`❌ Error al subir "${nombre}": ${err.error?.message || 'Inténtalo de nuevo.'}`, 'error');
+        }
+      });
+      // Clear file input to allow re-selection of same file
+      if (event && event.target) {
+        event.target.value = '';
       }
-    });
   }
 
   // ─────────────────────────────────────────────
@@ -263,16 +268,20 @@ export class SeccionServicioComponent implements OnInit, OnDestroy {
       formData.append('reporte_id', reporteId.toString());
     }
 
-    this.ssService.subirReporte(formData).subscribe({
-      next: (res: any) => {
-        const nombre = esEnsayo ? 'Ensayo Final' : `Reporte ${this.selectedDocNombre}`;
-        this.mostrarMensaje(`✅ ${nombre} entregado. Pendiente de revisión.`, 'success');
-        this.cargarEstado();
-      },
-      error: (err: any) => {
-        this.mostrarMensaje(`❌ ${err.error?.error || 'Error al subir el archivo.'}`, 'error');
+    this.ssService.subirReporte(formData).pipe(retry(1)).subscribe({
+        next: (res: any) => {
+          const nombre = esEnsayo ? 'Ensayo Final' : `Reporte ${this.selectedDocNombre}`;
+          this.mostrarMensaje(`✅ ${nombre} entregado. Pendiente de revisión.`, 'success');
+          this.cargarEstado();
+        },
+        error: (err: any) => {
+          this.mostrarMensaje(`❌ ${err.error?.error || 'Error al subir el archivo.'}`, 'error');
+        }
+      });
+      // Clear file input after upload attempt
+      if (event && event.target) {
+        event.target.value = '';
       }
-    });
   }
 
   // ─────────────────────────────────────────────

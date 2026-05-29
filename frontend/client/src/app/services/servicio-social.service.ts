@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { retry } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -42,7 +43,7 @@ export class ServicioSocialService {
      * Ruta: POST /api/servicio-social/alumno/subir-documento
      */
     subirDocumento(formData: FormData): Observable<any> {
-        return this.http.post(`${this.apiUrl}/alumno/subir-documento`, formData);
+        return this.http.post(`${this.apiUrl}/alumno/subir-documento`, formData).pipe(retry(1));
     }
 
     /**
@@ -50,7 +51,7 @@ export class ServicioSocialService {
      * Ruta: POST /api/servicio-social/alumno/subir-reporte
      */
     subirReporte(formData: FormData): Observable<any> {
-        return this.http.post(`${this.apiUrl}/alumno/subir-reporte`, formData);
+        return this.http.post(`${this.apiUrl}/alumno/subir-reporte`, formData).pipe(retry(1));
     }
 
     /**
