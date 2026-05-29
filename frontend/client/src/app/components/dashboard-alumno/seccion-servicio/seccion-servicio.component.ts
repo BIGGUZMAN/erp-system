@@ -34,6 +34,7 @@ export class SeccionServicioComponent implements OnInit, OnDestroy {
   /** Mensaje de éxito/error para subida de documentos */
   mensajeSubida: string = '';
   tipoMensaje: 'success' | 'error' | '' = '';
+  subiendo: boolean = false;
 
   private timerInterval: any;
 
@@ -232,6 +233,24 @@ export class SeccionServicioComponent implements OnInit, OnDestroy {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Validar tipo (PDF únicamente)
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      this.mostrarMensaje('❌ El archivo seleccionado debe ser un PDF.', 'error');
+      if (event.target) event.target.value = '';
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.mostrarMensaje('❌ El archivo no debe pesar más de 5MB.', 'error');
+      if (event.target) event.target.value = '';
+      return;
+    }
+
+    this.subiendo = true;
+    this.mostrarMensaje('⏳ Subiendo documento...', 'success');
+    this.cdr.detectChanges();
+
     const formData = new FormData();
     formData.append('archivo', file);
     formData.append('tipo_documento', nombre);
@@ -239,11 +258,14 @@ export class SeccionServicioComponent implements OnInit, OnDestroy {
 
     this.ssService.subirDocumento(formData).pipe(retry(1)).subscribe({
         next: (res: any) => {
+          this.subiendo = false;
           this.mostrarMensaje(`✅ "${nombre}" subido correctamente.`, 'success');
           this.cargarEstado();
         },
         error: (err: any) => {
+          this.subiendo = false;
           this.mostrarMensaje(`❌ Error al subir "${nombre}": ${err.error?.message || 'Inténtalo de nuevo.'}`, 'error');
+          this.cdr.detectChanges();
         }
       });
       // Clear file input to allow re-selection of same file
@@ -259,7 +281,26 @@ export class SeccionServicioComponent implements OnInit, OnDestroy {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Validar tipo (PDF únicamente)
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      this.mostrarMensaje('❌ El archivo seleccionado debe ser un PDF.', 'error');
+      if (event.target) event.target.value = '';
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.mostrarMensaje('❌ El archivo no debe pesar más de 5MB.', 'error');
+      if (event.target) event.target.value = '';
+      return;
+    }
+
+    this.subiendo = true;
     const esEnsayo = this.selectedDocNombre === 'Ensayo Final';
+    const nombre = esEnsayo ? 'Ensayo Final' : `Reporte ${this.selectedDocNombre}`;
+    this.mostrarMensaje(`⏳ Subiendo ${nombre}...`, 'success');
+    this.cdr.detectChanges();
+
     const formData = new FormData();
     formData.append('archivo', file);
     formData.append('usuario_id', this.usuarioId);
@@ -270,12 +311,14 @@ export class SeccionServicioComponent implements OnInit, OnDestroy {
 
     this.ssService.subirReporte(formData).pipe(retry(1)).subscribe({
         next: (res: any) => {
-          const nombre = esEnsayo ? 'Ensayo Final' : `Reporte ${this.selectedDocNombre}`;
+          this.subiendo = false;
           this.mostrarMensaje(`✅ ${nombre} entregado. Pendiente de revisión.`, 'success');
           this.cargarEstado();
         },
         error: (err: any) => {
+          this.subiendo = false;
           this.mostrarMensaje(`❌ ${err.error?.error || 'Error al subir el archivo.'}`, 'error');
+          this.cdr.detectChanges();
         }
       });
       // Clear file input after upload attempt
