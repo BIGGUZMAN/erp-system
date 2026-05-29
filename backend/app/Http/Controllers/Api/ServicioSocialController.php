@@ -271,13 +271,21 @@ class ServicioSocialController extends Controller
                 ->header('X-Frame-Options', 'ALLOWALL');
         }
 
+        // Ensure storage symlink exists
+        $publicStorage = public_path('storage');
+        if (!is_link($publicStorage) && !file_exists($publicStorage)) {
+            // Create symlink if missing
+            \Artisan::call('storage:link');
+        }
+
         if ($ruta && Storage::disk('public')->exists($ruta)) {
             $file = Storage::disk('public')->get($ruta);
             $type = Storage::disk('public')->mimeType($ruta);
+            $disposition = 'inline; filename="documento.' . pathinfo($ruta, PATHINFO_EXTENSION) . '"';
 
             return response($file, 200)
                 ->header('Content-Type', $type)
-                ->header('Content-Disposition', 'inline; filename="documento.pdf"')
+                ->header('Content-Disposition', $disposition)
                 ->header('Access-Control-Allow-Origin', 'http://localhost:4200')
                 ->header('X-Frame-Options', 'ALLOWALL');
         }

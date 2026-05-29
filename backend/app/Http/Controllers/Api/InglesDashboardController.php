@@ -184,6 +184,12 @@ class InglesDashboardController extends Controller
 
     public function guardarCalificaciones(Request $request)
     {
+        $request->validate([
+            'calificaciones' => 'required|array',
+            'calificaciones.*.id' => 'required|integer|exists:inscripcion_ingleses,id',
+            'calificaciones.*.calificacion_final' => 'required|numeric|min:0|max:100',
+        ]);
+
         try {
             foreach ($request->calificaciones as $calif) {
                 $inscripcion = InscripcionIngles::find($calif['id']);

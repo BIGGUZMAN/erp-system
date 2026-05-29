@@ -21,6 +21,11 @@ until php -r "new PDO('mysql:host=${DB_HOST:-erp_mysql};port=${DB_PORT:-3306};db
 done
 
 echo "✅ MySQL listo."
+# Ensure storage symlink exists – create if missing
+if [ ! -L public/storage ] && [ ! -d public/storage ]; then
+    echo "🔧 Creating storage symlink..."
+    php artisan storage:link
+fi
 
 # Limpiar cachés para desarrollo
 php artisan config:clear
