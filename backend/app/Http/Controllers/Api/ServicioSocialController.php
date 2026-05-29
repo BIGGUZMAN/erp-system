@@ -328,7 +328,7 @@ class ServicioSocialController extends Controller
                 'numero_reporte'  => $rep->numero_reporte,
                 'nombreMostrar'   => "REPORTE BIMESTRAL #{$rep->numero_reporte}",
                 'url_archivo'     => $rep->ruta_archivo
-                    ? url("storage/{$rep->ruta_archivo}")
+                    ? url("api/servicio-social/ver-archivo?ruta={$rep->ruta_archivo}")
                     : null,
             ];
         }
@@ -370,7 +370,7 @@ class ServicioSocialController extends Controller
                 'numero_control'  => $usuario->numero_control,
                 'nombreMostrar'   => 'ENSAYO FINAL',
                 'url_archivo'     => $doc->ruta_archivo
-                    ? url("storage/{$doc->ruta_archivo}")
+                    ? url("api/servicio-social/ver-archivo?ruta={$doc->ruta_archivo}")
                     : null,
             ];
         }
